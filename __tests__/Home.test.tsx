@@ -12,7 +12,7 @@ describe('Home', () => {
 
   it('renders the instructions', () => {
     render(<Home />);
-    const instructions = screen.getByText(/Get started by editing/i);
+    const instructions = screen.getByText(/Property Tracker System/i);
     expect(instructions).toBeInTheDocument();
   });
 });
