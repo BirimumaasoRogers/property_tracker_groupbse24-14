@@ -73,12 +73,9 @@ jobs:
       - name: Run build
         run: npm run build
 
-      - name: Deploy to Vercel (Staging)
-        run: vercel --token ${{ secrets.VERCEL_TOKEN }} --yes
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-      - name: Alias to Staging Domain
-        run: vercel alias $(vercel --token ${{ secrets.VERCEL_TOKEN }} --yes) staging-property-tracker-groupbse24-14.vercel.app
+      - name: Deploy and Alias to Staging Domain
+        run: |
+          DEPLOY_URL=$(vercel --token ${{ secrets.VERCEL_TOKEN }} --yes)
+          vercel alias $DEPLOY_URL staging-property-tracker-groupbse24-14.vercel.app --token ${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
