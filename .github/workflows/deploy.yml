@@ -77,3 +77,8 @@ jobs:
         run: vercel --token ${{ secrets.VERCEL_TOKEN }} --yes
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Alias to Staging Domain
+        run: vercel alias $(vercel --token ${{ secrets.VERCEL_TOKEN }} --yes) staging-property-tracker-groupbse24-14.vercel.app
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
