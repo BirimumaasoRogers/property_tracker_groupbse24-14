@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+#prometheus
+prometheus-3.0.0-beta.0.windows-amd64/
