@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "next": "14.2.13",
+    "prom-client": "^15.1.3",
     "property_tracker_groupbse24-14": "file:",
     "react": "^18",
     "react-dom": "^18"
