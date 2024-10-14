@@ -11,9 +11,9 @@ export const authOptions = {
       },
       async authorize(credentials) {
         // Dummy user check
-        const user = { id: "1", name: "John Doe", email: "john.doe@example.com" };
+        const user = { id: "1", name: "John Doe", email: "john.doe@example.com" } as const;
 
-        if (
+        if (credentials && 
           credentials?.email === "john.doe@example.com" &&
           credentials?.password === "password123"
         ) {
@@ -29,18 +29,18 @@ export const authOptions = {
     signIn: '/dashboard/login', // Set custom login page route
   },
   session: {
-    strategy: 'jwt' as 'jwt',
+    strategy: 'jwt' as 'jwt' | 'database',
   },
   callbacks: {
-    async session({ session, token }: any) {
-      session.user.id = token.sub; // Append user ID to session
-      return session;
-    },
-    async jwt({ token, user }: any) {
+    async jwt({ token, user }: { token: any; user: any }) {
       if (user) {
         token.id = user.id;
       }
       return token;
+    },
+    async session({ session, token }: { session: any; token: any }) {
+      session.user.id = token.id;
+      return session;
     },
   },
   secret: process.env.NEXTAUTH_SECRET, // Store securely in .env.local
