@@ -26,6 +26,7 @@ export default function Login() {
 
     if (result?.error) {
       setError(result.error); // Show error if login fails
+      console.error(error);
     } else {
       // Redirect to dashboard on success
       router.push('/dashboard');

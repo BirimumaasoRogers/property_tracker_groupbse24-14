@@ -12,11 +12,11 @@ import {
   Package,
   Package2,
   Settings,
-  ShoppingCart,
+  // ShoppingCart,
   Users2,
 } from "lucide-react";
 
-export default function () {
+export default function SideBar () {
   return (
     <TooltipProvider>
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">

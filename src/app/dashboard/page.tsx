@@ -15,7 +15,6 @@ import {
   Package2,
   PanelLeft,
   Search,
-  Settings,
   ShoppingCart,
   Truck,
   Users2,
@@ -27,8 +26,8 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+  // BreadcrumbPage,
+  // BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import {
@@ -71,14 +70,14 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import SideNav from "@/components/ui/SideNav"
+import SideBar from "@/components/ui/SideNav"
 
 export default async function Dashboard() {
 
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
-      <SideNav />
+      <SideBar />
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
           <Sheet>
