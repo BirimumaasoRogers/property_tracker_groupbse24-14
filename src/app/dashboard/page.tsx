@@ -4,12 +4,14 @@ import Link from "next/link"
 import {
   ChevronLeft,
   ChevronRight,
+  CircleUser,
   Copy,
   CreditCard,
   File,
   Home,
   LineChart,
   ListFilter,
+  MonitorSmartphone,
   MoreVertical,
   Package,
   Package2,
@@ -93,39 +95,25 @@ export default async function Dashboard() {
                   href="#"
                   className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
                 >
-                  <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
-                  <span className="sr-only">Acme Inc</span>
+                  <Image src="https://res.cloudinary.com/dfmoqlbyl/image/upload/v1728984385/Rogers%20Stock/property-logo_mlwoue.png" alt="Property Tracker" width="40" height="40" />
+                  <span className="sr-only">Property Tracking System</span>
                 </Link>
                 <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                  href="/dashboard"
+                  className="flex items-center gap-4 px-2.5 text-foreground hover:text-foreground"
                 >
                   <Home className="h-5 w-5" />
                   Dashboard
                 </Link>
                 <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-foreground"
+                  href="/dashboard/devices"
+                  className="flex items-center gap-4 px-2.5 text-muted-foreground"
                 >
-                  <ShoppingCart className="h-5 w-5" />
-                  Orders
+                  <MonitorSmartphone className="h-5 w-5" />
+                  Devices
                 </Link>
                 <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <Package className="h-5 w-5" />
-                  Products
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <Users2 className="h-5 w-5" />
-                  Customers
-                </Link>
-                <Link
-                  href="#"
+                  href="/dashboard/settings"
                   className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                 >
                   <LineChart className="h-5 w-5" />
@@ -138,7 +126,7 @@ export default async function Dashboard() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="#">Dashboard</Link>
+                  <Link href="/dashboard">Dashboard</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
             </BreadcrumbList>
@@ -158,13 +146,7 @@ export default async function Dashboard() {
                 size="icon"
                 className="overflow-hidden rounded-full"
               >
-                <Image
-                  src="/placeholder-user.jpg"
-                  width={36}
-                  height={36}
-                  alt="Avatar"
-                  className="overflow-hidden rounded-full"
-                />
+                <CircleUser className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -184,17 +166,17 @@ export default async function Dashboard() {
                 className="sm:col-span-2" x-chunk="dashboard-05-chunk-0"
               >
                 <CardHeader className="pb-3">
-                  <CardTitle>Your Orders</CardTitle>
+                  <CardTitle>Your Devices</CardTitle>
                   <CardDescription className="max-w-lg text-balance leading-relaxed">
-                    Introducing Our Dynamic Orders Dashboard for Seamless
-                    Management and Insightful Analysis.
+                    Introducing Our Dynamic Devices Dashboard for Seamless
+                    Management.
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
-                  <Button>Create New Order</Button>
+                  <Button>Add New Device</Button>
                 </CardFooter>
               </Card>
-              <Card x-chunk="dashboard-05-chunk-1">
+              {/* <Card x-chunk="dashboard-05-chunk-1">
                 <CardHeader className="pb-2">
                   <CardDescription>This Week</CardDescription>
                   <CardTitle className="text-4xl">$1,329</CardTitle>
@@ -221,7 +203,7 @@ export default async function Dashboard() {
                 <CardFooter>
                   <Progress value={12} aria-label="12% increase" />
                 </CardFooter>
-              </Card>
+              </Card> */}
             </div>
             <Tabs defaultValue="week">
               <div className="flex items-center">

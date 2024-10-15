@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import {
+  CircleUser,
   File,
   Home,
   LineChart,
@@ -154,13 +155,7 @@ export default function Devices() {
                 size="icon"
                 className="overflow-hidden rounded-full"
               >
-                <Image
-                  src="/placeholder-user.jpg"
-                  width={36}
-                  height={36}
-                  alt="Avatar"
-                  className="overflow-hidden rounded-full"
-                />
+                <CircleUser className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
