@@ -13,13 +13,9 @@ import {
   ListFilter,
   MonitorSmartphone,
   MoreVertical,
-  Package,
-  Package2,
   PanelLeft,
   Search,
-  ShoppingCart,
   Truck,
-  Users2,
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -55,7 +51,6 @@ import {
   PaginationContent,
   PaginationItem,
 } from "@/components/ui/pagination"
-import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {

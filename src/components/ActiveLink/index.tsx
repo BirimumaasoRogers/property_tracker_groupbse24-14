@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 
 import { ReactNode } from "react";
 
-export default function ActiveLink({ children, href, className }: { children: ReactNode, href: string, className: string }) {
+export default function ActiveLink({ children, href }: { children: ReactNode, href: string }) {
   const pathname = usePathname();
 
   const getLinkClass = (path: string) => {

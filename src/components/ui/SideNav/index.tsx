@@ -30,7 +30,6 @@ export default function SideBar() {
             <TooltipTrigger asChild>
               <ActiveLink
                 href="/dashboard"
-                className={"/dashboard"}
               >
                 <Home className="h-5 w-5" />
                 <span className="sr-only">Dashboard</span>
@@ -42,7 +41,6 @@ export default function SideBar() {
             <TooltipTrigger asChild>
               <ActiveLink
                 href="/dashboard/devices"
-                className={"/dashboard/devices"}
               >
                 <MonitorSmartphone className="h-5 w-5" />
                 <span className="sr-only">Devices</span>
@@ -56,7 +54,6 @@ export default function SideBar() {
             <TooltipTrigger asChild>
               <ActiveLink
                 href="/dashboard/settings"
-                className={"/dashboard/settings"}
               >
                 <Settings className="h-5 w-5" />
                 <span className="sr-only">Settings</span>
