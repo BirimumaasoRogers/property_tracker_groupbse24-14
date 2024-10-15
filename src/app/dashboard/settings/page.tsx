@@ -23,9 +23,6 @@ import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import SideBar from "@/components/ui/SideNav"
 
-export const description =
-  "A settings page. The settings page has a sidebar navigation and a main content area. The main content area has a form to update the store name and a form to update the plugins directory. The sidebar navigation has links to general, security, integrations, support, organizations, and advanced settings."
-
 export default function Settings() {
   return (
     <div className="flex min-h-screen w-full flex-col">
