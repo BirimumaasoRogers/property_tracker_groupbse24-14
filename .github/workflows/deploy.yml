@@ -27,6 +27,8 @@ jobs:
         run: npm test
 
       - name: Run build
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
         run: npm run build
 
       - name: Deploy to Vercel (Production)
@@ -65,6 +67,8 @@ jobs:
         run: npm test
 
       - name: Run build
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
         run: npm run build
 
       - name: Deploy and Alias to Staging Domain
