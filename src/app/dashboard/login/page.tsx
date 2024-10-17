@@ -25,7 +25,6 @@ const formSchema = z.object({
 });
 
 export default function Login() {
-  const [error, setError] = useState("");
 
   const router = useRouter();
   const { toast } = useToast();
@@ -46,7 +45,6 @@ export default function Login() {
     });
 
     if (result?.error) {
-      setError(result.error);
       toast({
         title: "Login Failed",
         description: "Please check your email and password and try again.",

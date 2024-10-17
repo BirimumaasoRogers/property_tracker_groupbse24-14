@@ -37,8 +37,6 @@ const formSchema = z
   });
 
 export default function Login() {
-  const [error, setError] = useState("");
-
   const router = useRouter();
   const { toast } = useToast();
 
@@ -77,15 +75,10 @@ export default function Login() {
       });
 
       router.push("/dashboard/login");
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unknown error occurred");
-      }
+    } catch (error: any) {
       toast({
         title: "Registration Failed",
-        description: error instanceof Error ? error.message : "An unknown error occurred",
+        description: error?.message || "An unknown error occurred",
         variant: "destructive",
       });
       console.error(error);
