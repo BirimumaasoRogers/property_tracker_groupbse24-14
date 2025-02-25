@@ -1,17 +1,30 @@
-import { NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { createAuthInstance } from "@/lib/auth";
 
 export async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const auth = await createAuthInstance(); // Get the auth instance
 
-  if (!token) {
-    return NextResponse.redirect(new URL('/dashboard/login', req.url));
-  }
+    try {
+        // Use the `auth.handler` directly for session validation (if it's available)
+        const response = await auth.handler(req);
+        console.log("Auth response:", response);
+        
+        if (response.status !== 200) {
+            // If response indicates no session, redirect to login
+            return NextResponse.redirect(new URL("/login", req.url));
+        }
 
-  return NextResponse.next();
+        // If session exists, allow the request to proceed
+        return NextResponse.next();
+    } catch (error) {
+        console.error("Error during auth check:", error);
+        // Handle any unexpected errors
+        return NextResponse.redirect(new URL("/login", req.url));
+    }
 }
 
+// Required for Next.js middleware
 export const config = {
-  matcher: ['/dashboard/:path*'],
+    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"]
 };
