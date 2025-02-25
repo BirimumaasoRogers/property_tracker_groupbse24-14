@@ -2,22 +2,15 @@
 
 import * as React from "react"
 import {
-  AudioWaveform,
-  BaggageClaim,
   BookOpen,
   Bot,
-  Command,
-  Frame,
   GalleryVerticalEnd,
   Home,
-  Map,
-  PieChart,
   Settings2,
   SquareTerminal,
   Tags,
 } from "lucide-react"
 
-import { NavMain } from "@/components/Nav/nav-main"
 import { NavProjects } from "@/components/Nav/nav-projects"
 import { NavUser } from "@/components/Nav/nav-user"
 import { TeamSwitcher } from "@/components/TeamSwitcher"

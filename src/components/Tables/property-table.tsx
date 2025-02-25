@@ -22,12 +22,8 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -631,6 +627,16 @@ export default function PropertyTable() {
 }
 
 function RowActions({ row }: { row: Row<Item> }) {
+  const handleDelete = () => {
+    // Use row data for delete operation
+    console.log('Deleting row:', row.original.id);
+  };
+
+  const handleEdit = () => {
+    // Use row data for edit operation
+    console.log('Editing row:', row.original);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -642,13 +648,16 @@ function RowActions({ row }: { row: Row<Item> }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={handleEdit}>
             <span>Edit</span>
             <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-destructive focus:text-destructive">
+        <DropdownMenuItem 
+          onClick={handleDelete}
+          className="text-destructive focus:text-destructive"
+        >
           <span>Delete</span>
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>

@@ -1,6 +1,5 @@
 import { createAuthClient } from "better-auth/react"
 import { adminClient } from "better-auth/client/plugins"
-import { get } from "http";
 
 const getBaseURL = () => {
     if (process.env.NEXT_PUBLIC_APP_URL) {

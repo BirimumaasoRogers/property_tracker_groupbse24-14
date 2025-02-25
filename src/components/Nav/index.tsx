@@ -1,11 +1,8 @@
 "use client"
 
-import { Plus } from "lucide-react";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "../ui/breadcrumb";
-import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { SidebarTrigger } from "../ui/sidebar";
-import { NavUser } from "./nav-user";
 import { authClient } from "@/lib/auth-client";
 import { useEffect } from "react";
 
@@ -13,7 +10,7 @@ export const Nav = () => {
     const {
         data: session,
         // isPending, //loading state
-        error, //error object
+        // error, //error state
         refetch,
         // refetch //refetch the session
     } = authClient.useSession()

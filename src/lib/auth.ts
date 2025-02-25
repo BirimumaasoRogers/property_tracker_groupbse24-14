@@ -20,4 +20,4 @@ export async function createAuthInstance() {
 }
 
 // Export an async function to retrieve auth dynamically
-export let auth = createAuthInstance();
+export const auth = createAuthInstance();

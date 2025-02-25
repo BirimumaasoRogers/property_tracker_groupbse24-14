@@ -1,11 +1,10 @@
 'use client';
-import { CheckIcon, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { useId, useState } from "react";
+import { useState } from "react";
 import {
     Dialog,
-    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
@@ -27,7 +26,6 @@ import GeofenceMap from "../Maps/editableGeofencemap";
 import { Button } from "../ui/button";
 
 // Form Validation Schema
-// Update the form schema
 const formSchema = z.object({
     name: z.string().min(2, { message: "Name should have more than 2 characters" }),
     geofence: z.array(
@@ -52,6 +50,7 @@ export default function PropertyRegisterForm() {
 
     // 2. Define a submit handler.
     function onSubmit(values: z.infer<typeof formSchema>) {
+        setLoading(true);
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
         console.log(values)
