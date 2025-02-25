@@ -1,17 +1,18 @@
-import { createAuthInstance } from "@/lib/auth"; // Import the function
+import { createAuthInstance } from "@/lib/auth";
 import { toNextJsHandler } from "better-auth/next-js";
 
-export const handler = async () => {
-  const auth = await createAuthInstance(); // Await the auth instance
+// Create a reusable function to get the handler
+async function getHandler() {
+  const auth = await createAuthInstance();
   return toNextJsHandler(auth);
-};
+}
 
-export const GET = async (req: Request) => {
-  const { GET } = await handler();
-  return GET(req);
-};
+export async function GET(req: Request) {
+  const handler = await getHandler();
+  return handler.GET(req);
+}
 
-export const POST = async (req: Request) => {
-  const { POST } = await handler();
-  return POST(req);
-};
+export async function POST(req: Request) {
+  const handler = await getHandler();
+  return handler.POST(req);
+}
