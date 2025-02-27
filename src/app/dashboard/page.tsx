@@ -53,6 +53,7 @@ import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useId } from "react"
 import PropertyRegisterForm from "@/components/Forms/property-register-form"
+import TrackingGeofenceMap from "@/components/Maps/trackingGeofencemap"
 
 export default function Page() {
   const id = useId();
@@ -98,6 +99,7 @@ export default function Page() {
               <Progress value={25} aria-label="25% increase" />
             </CardFooter>
           </Card>
+
           {/* <Card x-chunk="dashboard-05-chunk-2">
             <CardHeader className="pb-2">
               <CardDescription>This Month</CardDescription>
@@ -113,9 +115,12 @@ export default function Page() {
             </CardFooter>
           </Card> */}
         </div>
-        <Tabs defaultValue="week">
-          <div className="flex items-center">
-            <TabsList>
+        {/* <Tabs defaultValue="week"> */}
+        <h2 className="text-lg font-bold">Live Tracking</h2>
+          <div className="border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+          <TrackingGeofenceMap/>
+
+            {/* <TabsList>
               <TabsTrigger value="week">Week</TabsTrigger>
               <TabsTrigger value="month">Month</TabsTrigger>
               <TabsTrigger value="year">Year</TabsTrigger>
@@ -154,9 +159,9 @@ export default function Page() {
                 <File className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only">Export</span>
               </Button>
-            </div>
+            </div> */}
           </div>
-          <TabsContent value="week">
+          {/* <TabsContent value="week">
             <Card x-chunk="dashboard-05-chunk-3">
               <CardHeader className="px-7">
                 <CardTitle>Orders</CardTitle>
@@ -347,7 +352,7 @@ export default function Page() {
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
+        </Tabs> */}
       </div>
       <div>
         <Card
