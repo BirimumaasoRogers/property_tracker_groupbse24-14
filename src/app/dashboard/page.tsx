@@ -1,17 +1,17 @@
-'use client'
+"use client";
 import {
   ChevronLeft,
   ChevronRight,
   Copy,
-  CreditCard,
-  File,
-  ListFilter,
+  // CreditCard,
+  // File,
+  // ListFilter,
   MoreVertical,
   Truck,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+// import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -19,41 +19,42 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
+  // DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
+  // DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
-} from "@/components/ui/pagination"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/pagination";
+import { Separator } from "@/components/ui/separator";
+// import {
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableHead,
+//   TableHeader,
+//   TableRow,
+// } from "@/components/ui/table";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useId } from "react"
-import PropertyRegisterForm from "@/components/Forms/property-register-form"
-import TrackingGeofenceMap from "@/components/Maps/trackingGeofencemap"
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useId } from "react";
+import PropertyRegisterForm from "@/components/Forms/property-register-form";
+import TrackingGeofenceMap from "@/components/Maps/trackingGeofencemap";
 
 export default function Page() {
   const id = useId();
@@ -61,9 +62,7 @@ export default function Page() {
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
       <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-          <Card
-            className="sm:col-span-2" x-chunk="dashboard-05-chunk-0"
-          >
+          <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
             <CardHeader className="pb-3">
               <CardTitle>Your Property</CardTitle>
               <CardDescription className="max-w-lg text-balance leading-relaxed">
@@ -117,10 +116,10 @@ export default function Page() {
         </div>
         {/* <Tabs defaultValue="week"> */}
         <h2 className="text-lg font-bold">Live Tracking</h2>
-          <div className="border border-gray-300 rounded-lg overflow-hidden shadow-sm">
-          <TrackingGeofenceMap/>
+        <div className="border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+          <TrackingGeofenceMap />
 
-            {/* <TabsList>
+          {/* <TabsList>
               <TabsTrigger value="week">Week</TabsTrigger>
               <TabsTrigger value="month">Month</TabsTrigger>
               <TabsTrigger value="year">Year</TabsTrigger>
@@ -160,8 +159,8 @@ export default function Page() {
                 <span className="sr-only sm:not-sr-only">Export</span>
               </Button>
             </div> */}
-          </div>
-          {/* <TabsContent value="week">
+        </div>
+        {/* <TabsContent value="week">
             <Card x-chunk="dashboard-05-chunk-3">
               <CardHeader className="px-7">
                 <CardTitle>Orders</CardTitle>
@@ -355,13 +354,11 @@ export default function Page() {
         </Tabs> */}
       </div>
       <div>
-        <Card
-          className="overflow-hidden" x-chunk="dashboard-05-chunk-4"
-        >
+        <Card className="overflow-hidden" x-chunk="dashboard-05-chunk-4">
           <CardHeader className="flex flex-row items-start bg-muted/50">
             <div className="grid gap-0.5">
               <CardTitle className="group flex items-center gap-2 text-lg">
-                Order Oe31b70H
+                Laptop {/* Querry the item name from the database */}
                 <Button
                   size="icon"
                   variant="outline"
@@ -371,13 +368,14 @@ export default function Page() {
                   <span className="sr-only">Copy Order ID</span>
                 </Button>
               </CardTitle>
-              <CardDescription>Date: November 23, 2023</CardDescription>
+              {/* <CardDescription>Date: November 23, 2023</CardDescription> */}
             </div>
             <div className="ml-auto flex items-center gap-1">
               <Button size="sm" variant="outline" className="h-8 gap-1">
                 <Truck className="h-3.5 w-3.5" />
                 <span className="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
-                  Track Order
+                  Track Laptop{" "}
+                  {/*this should be dynamic for the selected item*/}
                 </span>
               </Button>
               <DropdownMenu>
@@ -388,33 +386,28 @@ export default function Page() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                  <DropdownMenuItem>Export</DropdownMenuItem>
+                  <DropdownMenuItem>Edit Item</DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Trash</DropdownMenuItem>
+                  <DropdownMenuItem>Delete Item</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </CardHeader>
           <CardContent className="p-6 text-sm">
             <div className="grid gap-3">
-              <div className="font-semibold">Order Details</div>
+              <div className="font-semibold">Item Details</div>
               <ul className="grid gap-3">
                 <li className="flex items-center justify-between">
-                  <span className="text-muted-foreground">
-                    Glimmer Lamps x <span>2</span>
-                  </span>
-                  <span>$250.00</span>
+                  <span className="text-muted-foreground">Name</span>
+                  <span>Laptop</span>
                 </li>
                 <li className="flex items-center justify-between">
-                  <span className="text-muted-foreground">
-                    Aqua Filters x <span>1</span>
-                  </span>
-                  <span>$49.00</span>
+                  <span className="text-muted-foreground">Description</span>
+                  <span>HP</span>
                 </li>
               </ul>
-              <Separator className="my-2" />
-              <ul className="grid gap-3">
+              {/* <Separator className="my-2" /> */}
+              {/* <ul className="grid gap-3">
                 <li className="flex items-center justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span>$299.00</span>
@@ -431,60 +424,43 @@ export default function Page() {
                   <span className="text-muted-foreground">Total</span>
                   <span>$329.00</span>
                 </li>
+              </ul> */}
+            </div>
+            <Separator className="my-4" />
+
+            <div className="grid gap-3">
+              <div className="font-semibold">Geofence Information</div>
+              <ul className="grid gap-3">
+                <li className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Coordinates</span>
+                  <span>34.567, -76.543 </span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Created </span>
+                  <span>
+                    <time dateTime="2023-11-23">November 23, 2023</time>
+                  </span>
+                </li>
               </ul>
             </div>
-            <Separator className="my-4" />
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-3">
-                <div className="font-semibold">Shipping Information</div>
-                <address className="grid gap-0.5 not-italic text-muted-foreground">
-                  <span>Liam Johnson</span>
-                  <span>1234 Main St.</span>
-                  <span>Anytown, CA 12345</span>
-                </address>
-              </div>
-              <div className="grid auto-rows-max gap-3">
-                <div className="font-semibold">Billing Information</div>
-                <div className="text-muted-foreground">
-                  Same as shipping address
-                </div>
-              </div>
-            </div>
+
             <Separator className="my-4" />
             <div className="grid gap-3">
-              <div className="font-semibold">Customer Information</div>
+              <div className="font-semibold">Trackiing Information</div>
               <dl className="grid gap-3">
                 <div className="flex items-center justify-between">
-                  <dt className="text-muted-foreground">Customer</dt>
-                  <dd>Liam Johnson</dd>
+                  <dt className="text-muted-foreground">Property Status</dt>
+                  <dd>Within Bounds</dd>
                 </div>
+
                 <div className="flex items-center justify-between">
-                  <dt className="text-muted-foreground">Email</dt>
-                  <dd>
-                    <a href="mailto:">liam@acme.com</a>
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <dt className="text-muted-foreground">Phone</dt>
-                  <dd>
-                    <a href="tel:">+1 234 567 890</a>
-                  </dd>
+                  <dt className="text-muted-foreground">GPS Status</dt>
+                  <dd>Active</dd>
                 </div>
               </dl>
             </div>
-            <Separator className="my-4" />
-            <div className="grid gap-3">
-              <div className="font-semibold">Payment Information</div>
-              <dl className="grid gap-3">
-                <div className="flex items-center justify-between">
-                  <dt className="flex items-center gap-1 text-muted-foreground">
-                    <CreditCard className="h-4 w-4" />
-                    Visa
-                  </dt>
-                  <dd>**** **** **** 4532</dd>
-                </div>
-              </dl>
-            </div>
+            
+            
           </CardContent>
           <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
             <div className="text-xs text-muted-foreground">
@@ -510,5 +486,5 @@ export default function Page() {
         </Card>
       </div>
     </main>
-  )
+  );
 }
