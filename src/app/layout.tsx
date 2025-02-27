@@ -1,19 +1,14 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import {Lato} from "next/font/google"
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import {SpeedInsights} from "@vercel/speed-insights/next"
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const lato = Lato({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-lato",
 });
 
 export const metadata: Metadata = {
@@ -30,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${lato.variable}antialiased`}
       >
         {children}
         <Analytics />
