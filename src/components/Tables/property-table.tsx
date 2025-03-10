@@ -82,16 +82,18 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 type Item = {
   id: string;
   name: string;
-  email: string;
-  location: string;
-  flag: string;
-  status: "Active" | "Inactive" | "Pending";
-  balance: number;
+  gpsTagStatus: string;
+  insideGeofence: string;
+  geofencePolygon: string;
+  geofenceCoordinates: string;
+  createdAt: string;
+  trackingHistory: string;
 };
+
 
 // Custom filter function for multi-column searching
 const multiColumnFilterFn: FilterFn<Item> = (row, columnId, filterValue) => {
-  const searchableRowContent = `${row.original.name} ${row.original.email}`.toLowerCase();
+  const searchableRowContent = `${row.original.name}`.toLowerCase();
   const searchTerm = (filterValue ?? "").toLowerCase();
   return searchableRowContent.includes(searchTerm);
 };
@@ -260,9 +262,8 @@ export default function PropertyTable() {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    enableSortingRemoval: false,
     getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
@@ -275,34 +276,37 @@ export default function PropertyTable() {
       columnVisibility,
     },
   });
-
+  
   // Get unique status values
-  const uniqueStatusValues = useMemo(() => {
-    const statusColumn = table.getColumn("status");
-
+  const getUniqueStatusValues = () => {
+    if (!table) return []; // ✅ Ensure table is defined
+    const statusColumn = table.getColumn("gpsTagStatus"); // ✅ Correct column name
     if (!statusColumn) return [];
-
-    const values = Array.from(statusColumn.getFacetedUniqueValues().keys());
-
-    return values.sort();
-  }, [table.getColumn("status")?.getFacetedUniqueValues()]);
-
+    return Array.from(statusColumn.getFacetedUniqueValues().keys()).sort();
+  };
+  
+  const uniqueStatusValues = getUniqueStatusValues(); // ✅ Call it like a function
+  
   // Get counts for each status
-  const statusCounts = useMemo(() => {
-    const statusColumn = table.getColumn("status");
+  const getStatusCounts = () => {
+    if (!table) return new Map();
+    const statusColumn = table.getColumn("gpsTagStatus");
     if (!statusColumn) return new Map();
     return statusColumn.getFacetedUniqueValues();
-  }, [table.getColumn("status")?.getFacetedUniqueValues()]);
-
+  };
+  
+  const statusCounts = getStatusCounts();
+  
+  // Use correct column name for filtering
   const selectedStatuses = useMemo(() => {
-    const filterValue = table.getColumn("status")?.getFilterValue() as string[];
+    const filterValue = table.getColumn("gpsTagStatus")?.getFilterValue() as string[];
     return filterValue ?? [];
-  }, [table.getColumn("status")?.getFilterValue()]);
-
+  }, [table.getColumn("gpsTagStatus")?.getFilterValue()]);
+  
   const handleStatusChange = (checked: boolean, value: string) => {
-    const filterValue = table.getColumn("status")?.getFilterValue() as string[];
+    const filterValue = table.getColumn("gpsTagStatus")?.getFilterValue() as string[];
     const newFilterValue = filterValue ? [...filterValue] : [];
-
+  
     if (checked) {
       newFilterValue.push(value);
     } else {
@@ -311,9 +315,10 @@ export default function PropertyTable() {
         newFilterValue.splice(index, 1);
       }
     }
-
-    table.getColumn("status")?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
+  
+    table.getColumn("gpsTagStatus")?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
   };
+  
 
   return (
     <div className="space-y-4">
