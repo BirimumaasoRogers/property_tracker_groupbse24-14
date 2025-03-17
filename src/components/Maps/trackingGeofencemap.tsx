@@ -44,7 +44,7 @@ export default function TrackingGeofenceMap() {
     return(
         <div>
             
-            <GoogleMap mapContainerStyle={{width: "100%", height: "400px"}} zoom={12} center={defaultCenter}>
+            <GoogleMap mapContainerStyle={{width: "100%", height: "550px"}} zoom={12} center={defaultCenter}>
                 <Marker position = {itemLocation} />
                 <Polygon paths = {paths} />
             </GoogleMap>
