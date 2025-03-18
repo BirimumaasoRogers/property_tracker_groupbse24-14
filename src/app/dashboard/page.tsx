@@ -67,7 +67,7 @@ export default function Page() {
   const [locationData, setLocationData]: any = useState(null);
   const [propertyDetails, setPropertyDetails]: any = useState([]);
   const [selectedProperty, setSelectedProperty] = useQueryState("propertyId", {
-    defaultValue: properties.length > 0 ? properties[0]._id : "", // Set default to first property
+    defaultValue: "", // Set default to first property
   });
 
   useEffect(() => {
