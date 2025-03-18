@@ -25,10 +25,12 @@ import { useForm } from "react-hook-form";
 import GeofenceMap from "../Maps/editableGeofencemap";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
+import { Textarea } from "../ui/textarea";
 
 // Form Validation Schema
 const formSchema = z.object({
     name: z.string().min(2, { message: "Name should have more than 2 characters" }),
+    description: z.string().min(2, { message: "Description should have more than 2 characters" }),
     trackerID: z.string().min(2, { message: "Input a valid Tracker ID" }),
     geofence: z.array(
         z.object({
@@ -46,6 +48,7 @@ export default function PropertyRegisterForm() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
+            description: "",
             trackerID: "",
             geofence: [],
         },
@@ -107,6 +110,22 @@ export default function PropertyRegisterForm() {
                                                 <FormItem>
                                                     <FormControl>
                                                         <Input type="text" placeholder="Property Name" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-4 sm:flex-row">
+                                    <div className="flex-1 space-y-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="description"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Textarea placeholder="Property Description" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
