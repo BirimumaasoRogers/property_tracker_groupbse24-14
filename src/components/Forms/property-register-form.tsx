@@ -24,10 +24,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import GeofenceMap from "../Maps/editableGeofencemap";
 import { Button } from "../ui/button";
+import { toast } from "sonner";
+import { Textarea } from "../ui/textarea";
 
 // Form Validation Schema
 const formSchema = z.object({
     name: z.string().min(2, { message: "Name should have more than 2 characters" }),
+    description: z.string().min(2, { message: "Description should have more than 2 characters" }),
+    trackerID: z.string().min(2, { message: "Input a valid Tracker ID" }),
     geofence: z.array(
         z.object({
             lat: z.number(),
@@ -44,16 +48,38 @@ export default function PropertyRegisterForm() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
+            description: "",
+            trackerID: "",
             geofence: [],
         },
     });
 
     // 2. Define a submit handler.
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        setLoading(true);
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            setLoading(true);
+            const response = await fetch('/api/properties', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            });
+    
+            const result = await response.json();
+    
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to create property');
+            }
+    
+            toast.success('Property created successfully');
+            setOpen(false);
+            form.reset();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Failed to create property');
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -84,6 +110,38 @@ export default function PropertyRegisterForm() {
                                                 <FormItem>
                                                     <FormControl>
                                                         <Input type="text" placeholder="Property Name" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-4 sm:flex-row">
+                                    <div className="flex-1 space-y-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="description"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Textarea placeholder="Property Description" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-4 sm:flex-row">
+                                    <div className="flex-1 space-y-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="trackerID"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Input type="text" placeholder="Tracker ID" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

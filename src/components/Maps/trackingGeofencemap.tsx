@@ -93,6 +93,7 @@ export default function TrackingGeofenceMap() {
     return(
         <div>
             
+
             <GoogleMap 
             mapContainerStyle={{width: "100%", height: "400px"}} zoom={14} center={defaultCenter}
             options={{
@@ -119,6 +120,7 @@ export default function TrackingGeofenceMap() {
                         }} 
                     />
                 )}
+
             </GoogleMap>
         </div>
     )

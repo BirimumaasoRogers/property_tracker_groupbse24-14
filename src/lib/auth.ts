@@ -1,23 +1,55 @@
+import clientPromise from "@/lib/mongodb";
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import clientPromise from "@/lib/mongodb";
 
+let authInstance: any = null;
+
+export async function getAuth() {
+    if (!authInstance) {
+        const client = await clientPromise;
+        const db = client.db("property-tracker");
+
+        authInstance = betterAuth({
+            database: mongodbAdapter(db),
+            emailAndPassword: { enabled: true, autoSignIn: false },
+            session: {
+                expiresIn: 60 * 60 * 24 * 7, // 7 days
+                updateAge: 60 * 60 * 24, // 1 day
+                cookie: {
+                    name: "better-auth.session_token",
+                    options: {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === "production",
+                        sameSite: "lax",
+                    },
+                },
+            },
+            secret: process.env.BETTER_AUTH_SECRET,
+        });
+    }
+    return authInstance;
+}
+
+// Export a function to create a new auth instance for API routes
 export async function createAuthInstance() {
     const client = await clientPromise;
     const db = client.db("property-tracker");
-
+    
     return betterAuth({
         database: mongodbAdapter(db),
-        emailAndPassword: {  
-            enabled: true,
-            autoSignIn: false
-        },
+        emailAndPassword: { enabled: true, autoSignIn: false },
         session: {
             expiresIn: 60 * 60 * 24 * 7, // 7 days
-            updateAge: 60 * 60 * 24 // 1 day (every 1 day the session expiration is updated)
-        }
+            updateAge: 60 * 60 * 24, // 1 day
+            cookie: {
+                name: "better-auth.session_token",
+                options: {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "lax",
+                },
+            },
+        },
+        secret: process.env.BETTER_AUTH_SECRET,
     });
 }
-
-// Export an async function to retrieve auth dynamically
-export const auth = createAuthInstance();

@@ -82,16 +82,18 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 type Item = {
   id: string;
   name: string;
-  email: string;
-  location: string;
-  flag: string;
-  status: "Active" | "Inactive" | "Pending";
-  balance: number;
+  gpsTagStatus: string;
+  insideGeofence: string;
+  geofencePolygon: string;
+  geofenceCoordinates: string;
+  createdAt: string;
+  trackingHistory: string;
 };
+
 
 // Custom filter function for multi-column searching
 const multiColumnFilterFn: FilterFn<Item> = (row, columnId, filterValue) => {
-  const searchableRowContent = `${row.original.name} ${row.original.email}`.toLowerCase();
+  const searchableRowContent = `${row.original.name}`.toLowerCase();
   const searchTerm = (filterValue ?? "").toLowerCase();
   return searchableRowContent.includes(searchTerm);
 };
@@ -126,7 +128,7 @@ const columns: ColumnDef<Item>[] = [
     enableHiding: false,
   },
   {
-    header: "Name",
+    header: "Property Name",
     accessorKey: "name",
     cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
     size: 180,
@@ -134,51 +136,46 @@ const columns: ColumnDef<Item>[] = [
     enableHiding: false,
   },
   {
-    header: "Email",
-    accessorKey: "email",
-    size: 220,
-  },
-  {
-    header: "Location",
-    accessorKey: "location",
+    header: "GPS Tag Status",
+    accessorKey: "gpsTagStatus", // Changed from "status"
     cell: ({ row }) => (
-      <div>
-        <span className="text-lg leading-none">{row.original.flag}</span> {row.getValue("location")}
-      </div>
-    ),
-    size: 180,
-  },
-  {
-    header: "Status",
-    accessorKey: "status",
-    cell: ({ row }) => (
-      <Badge
-        className={cn(
-          row.getValue("status") === "Inactive" && "bg-muted-foreground/60 text-primary-foreground",
-        )}
-      >
-        {row.getValue("status")}
+      <Badge className={cn(row.getValue("gpsTagStatus") === "Inactive" && "bg-muted-foreground/60 text-primary-foreground")}>
+        {row.getValue("gpsTagStatus")}
       </Badge>
     ),
     size: 100,
     filterFn: statusFilterFn,
   },
   {
-    header: "Performance",
-    accessorKey: "performance",
+    header: "Inside Geofence",
+    accessorKey: "insideGeofence", // Changed from "status"
+    cell: ({ row }) => (
+      <Badge className={cn(row.getValue("insideGeofence") === "No" ? "bg-red-500 text-white" : "bg-green-500 text-white")}>
+        {row.getValue("insideGeofence")}
+      </Badge>
+    ),
+    size: 120,
   },
   {
-    header: "Balance",
-    accessorKey: "balance",
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("balance"));
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-      return formatted;
-    },
-    size: 120,
+    header: "Geofence Polygon",
+    accessorKey: "geofencePolygon", // Changed from "email"
+    size: 150,
+  },
+  {
+    header: "Geofence Coordinates",
+    accessorKey: "geofenceCoordinates", // Changed from "location"
+    size: 200,
+  },
+  {
+    header: "Created At",
+    accessorKey: "createdAt", // Changed from "performance"
+    size: 180,
+  },
+  {
+    header: "Tracking History",
+    accessorKey: "trackingHistory", // Changed from "balance"
+    cell: ({ row }) => <div>{row.getValue("trackingHistory")}</div>,
+    size: 200,
   },
   {
     id: "actions",
@@ -206,7 +203,7 @@ export default function PropertyTable() {
     },
   ]);
 
-  const [data, setData] = useState<Item[]>([]);
+  /*const [data, setData] = useState<Item[]>([]);
   useEffect(() => {
     async function fetchPosts() {
       const res = await fetch(
@@ -217,7 +214,40 @@ export default function PropertyTable() {
     }
     fetchPosts();
   }, []);
-
+  */
+  const [data, setData] = useState([
+    {
+      id: "1",
+      name: "Laptop",
+      gpsTagStatus: "Active",
+      insideGeofence: "Yes",
+      geofencePolygon: "Circle",
+      geofenceCoordinates: "12.345, -98.765",
+      createdAt: "2025-02-25 10:00:00",
+      trackingHistory: "Updated 2 hours ago",
+    },
+    {
+      id: "2",
+      name: "Phone",
+      gpsTagStatus: "Inactive",
+      insideGeofence: "No",
+      geofencePolygon: "Rectangle",
+      geofenceCoordinates: "34.567, -76.543",
+      createdAt: "2025-02-20 08:45:00",
+      trackingHistory: "Updated 3 days ago",
+    },
+    {
+      id: "3",
+      name: "Tablet",
+      gpsTagStatus: "Active",
+      insideGeofence: "Yes",
+      geofencePolygon: "Square",
+      geofenceCoordinates: "23.456, -87.654",
+      createdAt: "2025-01-30 09:20:00",
+      trackingHistory: "Updated 1 week ago",
+    },
+  ]);
+  
   const handleDeleteRows = () => {
     const selectedRows = table.getSelectedRowModel().rows;
     const updatedData = data.filter(
@@ -232,9 +262,8 @@ export default function PropertyTable() {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    enableSortingRemoval: false,
     getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
@@ -247,34 +276,37 @@ export default function PropertyTable() {
       columnVisibility,
     },
   });
-
+  
   // Get unique status values
-  const uniqueStatusValues = useMemo(() => {
-    const statusColumn = table.getColumn("status");
-
+  const getUniqueStatusValues = () => {
+    if (!table) return []; // ✅ Ensure table is defined
+    const statusColumn = table.getColumn("gpsTagStatus"); // ✅ Correct column name
     if (!statusColumn) return [];
-
-    const values = Array.from(statusColumn.getFacetedUniqueValues().keys());
-
-    return values.sort();
-  }, [table.getColumn("status")?.getFacetedUniqueValues()]);
-
+    return Array.from(statusColumn.getFacetedUniqueValues().keys()).sort();
+  };
+  
+  const uniqueStatusValues = getUniqueStatusValues(); // ✅ Call it like a function
+  
   // Get counts for each status
-  const statusCounts = useMemo(() => {
-    const statusColumn = table.getColumn("status");
+  const getStatusCounts = () => {
+    if (!table) return new Map();
+    const statusColumn = table.getColumn("gpsTagStatus");
     if (!statusColumn) return new Map();
     return statusColumn.getFacetedUniqueValues();
-  }, [table.getColumn("status")?.getFacetedUniqueValues()]);
-
+  };
+  
+  const statusCounts = getStatusCounts();
+  
+  // Use correct column name for filtering
   const selectedStatuses = useMemo(() => {
-    const filterValue = table.getColumn("status")?.getFilterValue() as string[];
+    const filterValue = table.getColumn("gpsTagStatus")?.getFilterValue() as string[];
     return filterValue ?? [];
-  }, [table.getColumn("status")?.getFilterValue()]);
-
+  }, [table.getColumn("gpsTagStatus")?.getFilterValue()]);
+  
   const handleStatusChange = (checked: boolean, value: string) => {
-    const filterValue = table.getColumn("status")?.getFilterValue() as string[];
+    const filterValue = table.getColumn("gpsTagStatus")?.getFilterValue() as string[];
     const newFilterValue = filterValue ? [...filterValue] : [];
-
+  
     if (checked) {
       newFilterValue.push(value);
     } else {
@@ -283,9 +315,10 @@ export default function PropertyTable() {
         newFilterValue.splice(index, 1);
       }
     }
-
-    table.getColumn("status")?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
+  
+    table.getColumn("gpsTagStatus")?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
   };
+  
 
   return (
     <div className="space-y-4">
@@ -664,4 +697,4 @@ function RowActions({ row }: { row: Row<Item> }) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+} 

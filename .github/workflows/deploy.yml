@@ -31,6 +31,9 @@ jobs:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
         run: npm run build
 
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
       - name: Deploy to Vercel (Production)
         id: deploy-prod
         run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --yes
@@ -70,6 +73,9 @@ jobs:
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
         run: npm run build
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
 
       - name: Deploy and Alias to Staging Domain
         id: deploy-staging
