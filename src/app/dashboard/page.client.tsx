@@ -7,7 +7,6 @@ import {
     Copy,
     LocateFixed,
     MoreVertical,
-    Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,10 +38,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useId } from "react";
 import PropertyRegisterForm from "@/components/Forms/property-register-form";
 import TrackingGeofenceMap from "@/components/Maps/trackingGeofencemap";
-import { Loading } from "@/components/Loading";
 import { useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
 
@@ -62,23 +59,8 @@ export default function DashboardPage() {
 
     useEffect(() => {
         setIsMounted(true);
+        fetchProperties();
     }, []);
-
-    useEffect(() => {
-        const checkAuth = async () => {
-            const session = await authClient.getSession();
-            console.log("SESSION", session);
-    
-            if (!session || !session.data?.user) {
-                router.push("/login");
-            } else {
-                fetchProperties();
-            }
-        };
-    
-        checkAuth();
-    }, []);
-
 
     const fetchProperties = async () => {
         const response = await fetch("/api/properties");
@@ -116,6 +98,25 @@ export default function DashboardPage() {
             fetchLocationData(selectedProperty);
         }
     }, [selectedProperty]);
+
+    function formatDate(dateString: string | undefined) {
+        if (!dateString) {
+            return "Invalid Date"; // Fallback for undefined or null date strings
+        }
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return "Invalid Date"; // Fallback for invalid date formats
+        }
+        return new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true,
+        }).format(date);
+    }
 
     if (!isMounted) return null;
 
@@ -156,9 +157,9 @@ export default function DashboardPage() {
                                 </Select>
                             </div>
                         </CardContent>
-                        <CardFooter>
+                        {/* <CardFooter>
                             <Progress value={25} aria-label="25% increase" />
-                        </CardFooter>
+                        </CardFooter> */}
                     </Card>
                 </div>
                 <div className="flex flex-col gap-4">
@@ -170,27 +171,19 @@ export default function DashboardPage() {
             </div>
             <div>
                 <Card className="overflow-hidden" x-chunk="dashboard-05-chunk-4">
-                    <CardHeader className="flex flex-row items-start bg-muted/50">
-                        <div className="grid gap-0.5">
+                    <CardHeader className="flex flex-row items-center justify-between bg-muted/50">
+                        <div className="">
                             <CardTitle className="group flex items-center gap-2 text-lg">
                                 {selectedPropertyDetails ? (
                                     <>
                                         {selectedPropertyDetails.name} {/* Display property name */}
-                                        <Button
-                                            size="icon"
-                                            variant="outline"
-                                            className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-                                        >
-                                            <Copy className="h-3 w-3" />
-                                            <span className="sr-only">Copy Order ID</span>
-                                        </Button>
                                     </>
                                 ) : (
                                     <span>No Registered Devices</span>
                                 )}
                             </CardTitle>
                         </div>
-                        <div className="ml-auto flex items-center gap-1">
+                        <div className=" flex items-center gap-1">
                             {selectedPropertyDetails ? (
                                 <Button size="sm" variant="outline" className="h-8 gap-1">
                                     <LocateFixed className="h-3.5 w-3.5" />
@@ -207,9 +200,9 @@ export default function DashboardPage() {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem>Edit Item</DropdownMenuItem>
+                                    <DropdownMenuItem>Edit Property</DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem>Delete Item</DropdownMenuItem>
+                                    <DropdownMenuItem>Delete Property</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
@@ -243,7 +236,7 @@ export default function DashboardPage() {
                                         <li className="flex items-center justify-between">
                                             <span className="text-muted-foreground">Created </span>
                                             <span>
-                                                <time dateTime={locationData && locationData[0]?.createdAt}>{locationData && locationData[0]?.createdAt}</time> {/* Display createdAt */}
+                                                <time dateTime={selectedPropertyDetails?.createdAt}>{formatDate(selectedPropertyDetails?.createdAt)}</time> {/* Display createdAt */}
                                             </span>
                                         </li>
                                     </ul>
@@ -277,7 +270,7 @@ export default function DashboardPage() {
                     </CardContent>
                     <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
                         <div className="text-xs text-muted-foreground">
-                            Updated <time dateTime={locationData && locationData[0]?.updatedAt}>{locationData && locationData[0]?.updatedAt}</time> {/* Display updatedAt */}
+                            Updated <time dateTime={selectedPropertyDetails?.updatedAt}>{formatDate(selectedPropertyDetails?.updatedAt)}</time> {/* Display updatedAt */}
                         </div>
                         <Pagination className="ml-auto mr-0 w-auto">
                             <PaginationContent>

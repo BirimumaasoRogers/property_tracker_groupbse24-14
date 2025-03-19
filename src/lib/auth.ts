@@ -1,4 +1,4 @@
-import clientPromise from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb";
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 
@@ -6,8 +6,7 @@ let authInstance: any = null;
 
 export async function getAuth() {
     if (!authInstance) {
-        const client = await clientPromise;
-        const db = client.db("property-tracker");
+        const db = (await connectDB()).connection.db; // Ensure connection before accessing DB
 
         authInstance = betterAuth({
             database: mongodbAdapter(db),
@@ -32,9 +31,8 @@ export async function getAuth() {
 
 // Export a function to create a new auth instance for API routes
 export async function createAuthInstance() {
-    const client = await clientPromise;
-    const db = client.db("property-tracker");
-    
+    const db = (await connectDB()).connection.db; // Ensure DB connection
+
     return betterAuth({
         database: mongodbAdapter(db),
         emailAndPassword: { enabled: true, autoSignIn: false },

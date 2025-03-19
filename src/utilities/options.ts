@@ -1,6 +1,6 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import clientPromise from '@/lib/mongodb';
+import { connectDB } from '@/lib/mongodb'; // Updated import
 import { compare } from 'bcryptjs';
 
 const authOptions: NextAuthOptions = {
@@ -12,8 +12,8 @@ const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const client = await clientPromise;
-        const db = client.db("tracking_system");
+        const client = await connectDB(); // Use connectDB to establish connection
+        const db = client.connection.db; // Access the database connection
 
         // Find user by email
         const user = await db.collection("users").findOne({ email: credentials?.email });

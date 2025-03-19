@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb";
 import { createAuthInstance } from "@/lib/auth";
+import Property from "@/models/Property";
+import { connectDB } from "@/lib/mongodb";
 
 export async function GET(req: Request) {
     try {
+        await connectDB();
+        
         const auth = await createAuthInstance();
         const sessionToken = req.headers.get('cookie')?.match(/better-auth\.session_token=([^;]+)/)?.[1];
 
@@ -21,9 +24,7 @@ export async function GET(req: Request) {
             return NextResponse.json({ success: false, error: 'Invalid session' }, { status: 401 });
         }
 
-        const client = await clientPromise;
-        const db = client.db("property-tracker");
-        const properties = await db.collection("properties").find({ userId: session.user.id }).toArray();
+        const properties = await Property.find({ userId: session.user.id });
 
         return NextResponse.json({ success: true, data: properties });
     } catch (error) {
@@ -33,6 +34,7 @@ export async function GET(req: Request) {
         );
     }
 }
+
 export async function POST(req: Request) {
     try {
         const auth = await createAuthInstance();
@@ -52,32 +54,20 @@ export async function POST(req: Request) {
             return NextResponse.json({ success: false, error: 'Invalid session' }, { status: 401 });
         }
 
-        const client = await clientPromise;
-        const db = client.db("property-tracker");
         const data = await req.json();
+        console.log("Received Data:", data);
 
-        const property = {
+        const property = new Property({
             ...data,
             userId: session.user.id,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
+        });
+        console.log("Property Data to be saved", property);
 
-        const propertyResult = await db.collection("properties").insertOne(property);
-
-        // Create an initial location record for the property
-        const initialLocation = {
-            propertyId: propertyResult.insertedId,
-            userId: session.user.id,
-            coordinates: { lat: 0, lng: 0 }, // Default or placeholder coordinates
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
-        await db.collection("locations").insertOne(initialLocation);
+        const propertyResult = await property.save();
 
         return NextResponse.json({ success: true, data: propertyResult });
     } catch (error) {
+        console.error("Error creating property:", error);
         return NextResponse.json(
             { success: false, error: "Failed to create property" },
             { status: 500 }

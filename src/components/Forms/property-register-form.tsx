@@ -56,6 +56,7 @@ export default function PropertyRegisterForm() {
 
     // 2. Define a submit handler.
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        console.log("PROPERTY FORM VALUES", values);
         try {
             setLoading(true);
             const response = await fetch('/api/properties', {

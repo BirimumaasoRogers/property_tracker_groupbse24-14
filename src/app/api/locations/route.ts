@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb";
 import { createAuthInstance } from "@/lib/auth";
-import { ObjectId } from "mongodb";
+import Location from "@/models/Location";
+import { connectDB } from "@/lib/mongodb";
 
 export async function POST(req: Request) {
     try {
+        await connectDB();
+        
         const auth = await createAuthInstance();
         const sessionToken = req.headers.get('cookie')?.match(/better-auth\.session_token=([^;]+)/)?.[1];
 
@@ -22,19 +24,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ success: false, error: 'Invalid session' }, { status: 401 });
         }
 
-        const client = await clientPromise;
-        const db = client.db("property-tracker");
         const data = await req.json();
 
-        const location = {
+        const location = new Location({
             ...data,
             userId: session.user.id,
-            propertyId: data.propertyId, // Append propertyId to the location
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
+        });
 
-        const result = await db.collection("locations").insertOne(location);
+        const result = await location.save();
 
         return NextResponse.json({ success: true, data: result });
     } catch (error) {
@@ -47,25 +44,16 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
     try {
-        const client = await clientPromise;
-        const db = client.db("property-tracker");
-
-        // Use the URL constructor to parse the request URL
         const url = new URL(req.url);
         const propertyId = url.searchParams.get("propertyId");
-        console.log("Location Query PROPERTY ID", propertyId)
 
         if (!propertyId) {
             return NextResponse.json({ success: false, error: 'No property ID provided' }, { status: 400 });
         }
 
-        const objectId = new ObjectId(propertyId);
-
-        const latestLocation = await db.collection("locations")
-            .find({ propertyId: objectId })
+        const latestLocation = await Location.find({ propertyId })
             .sort({ createdAt: -1 })
-            .limit(1)
-            .toArray();
+            .limit(1);
 
         return NextResponse.json({ success: true, data: latestLocation });
     } catch (error) {
