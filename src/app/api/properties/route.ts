@@ -8,7 +8,9 @@ export async function GET(req: Request) {
         await connectDB();
         
         const auth = await createAuthInstance();
-        const sessionToken = req.headers.get('cookie')?.match(/better-auth\.session_token=([^;]+)/)?.[1];
+        const cookieHeader = req.headers.get('cookie');
+        const sessionToken = cookieHeader?.match(/(?:better-auth\.session_token|__Secure-better-auth\.session_token)=([^;]+)/)?.[1];
+        console.log("Session Token:", sessionToken); // Log the session token here
 
         if (!sessionToken) {
             return NextResponse.json({ success: false, error: 'No session token found' }, { status: 401 });
@@ -16,7 +18,7 @@ export async function GET(req: Request) {
 
         const session = await auth.api.getSession({
             headers: new Headers({
-                Cookie: `better-auth.session_token=${sessionToken}`
+                Cookie: cookieHeader // Use the original cookie header
             })
         });
 
@@ -26,7 +28,13 @@ export async function GET(req: Request) {
 
         const properties = await Property.find({ userId: session.user.id });
 
-        return NextResponse.json({ success: true, data: properties });
+        const response = NextResponse.json({ success: true, data: properties });
+        // Add CORS headers
+        response.headers.set("Access-Control-Allow-Origin", process.env.NEXT_PUBLIC_APP_URL || "*");
+        response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+        return response;
     } catch (error) {
         return NextResponse.json(
             { success: false, error: "Failed to fetch properties" },
@@ -38,7 +46,9 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
     try {
         const auth = await createAuthInstance();
-        const sessionToken = req.headers.get('cookie')?.match(/better-auth\.session_token=([^;]+)/)?.[1];
+        const cookieHeader = req.headers.get('cookie');
+        const sessionToken = cookieHeader?.match(/(?:better-auth\.session_token|__Secure-better-auth\.session_token)=([^;]+)/)?.[1];
+        console.log("Session Token:", sessionToken); // Log the session token here
 
         if (!sessionToken) {
             return NextResponse.json({ success: false, error: 'No session token found' }, { status: 401 });
@@ -46,7 +56,7 @@ export async function POST(req: Request) {
 
         const session = await auth.api.getSession({
             headers: new Headers({
-                Cookie: `better-auth.session_token=${sessionToken}`
+                Cookie: cookieHeader // Use the original cookie header
             })
         });
 
@@ -65,7 +75,13 @@ export async function POST(req: Request) {
 
         const propertyResult = await property.save();
 
-        return NextResponse.json({ success: true, data: propertyResult });
+        const response = NextResponse.json({ success: true, data: propertyResult });
+        // Add CORS headers
+        response.headers.set("Access-Control-Allow-Origin", process.env.NEXT_PUBLIC_APP_URL || "*");
+        response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+        return response;
     } catch (error) {
         console.error("Error creating property:", error);
         return NextResponse.json(

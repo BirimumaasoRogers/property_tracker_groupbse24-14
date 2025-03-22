@@ -1,14 +1,14 @@
 import { Schema, model, models } from "mongoose";
 
 const PropertySchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  name: { type: String, required: true },
+  userId: { type: Schema.Types.ObjectId, ref: "User" },
+  name: { type: String },
   description: { type: String },
-  trackerID: { type: String, required: true },
+  trackerId: { type: String },
   geofence: [
     {
-      lat: { type: Number, required: true },
-      lng: { type: Number, required: true }
+      lat: { type: Number },
+      lng: { type: Number }
     }
   ],
   createdAt: { type: Date, default: Date.now },

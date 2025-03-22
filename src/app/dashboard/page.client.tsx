@@ -52,6 +52,9 @@ export default function DashboardPage() {
     const [selectedProperty, setSelectedProperty] = useQueryState("propertyId", {
         defaultValue: "",
     });
+    const [trackerId, setTrackerId] = useQueryState("trackerId", {
+        defaultValue: "",
+    }); // New state for tracker ID
 
     const selectedPropertyDetails: any = propertyDetails.find(
         (property: any) => property._id === selectedProperty
@@ -65,24 +68,28 @@ export default function DashboardPage() {
     const fetchProperties = async () => {
         const response = await fetch("/api/properties");
         const data = await response.json();
+        console.log("PROPERTIES", data); // Log the propertie
         if (data.success) {
             setProperties(data.data);
             if (!selectedProperty) {
-                setSelectedProperty(data.data[0]._id);
+                setSelectedProperty(data.data[0]?._id);
+                setTrackerId(data.data[0]?.trackerId); // Set tracker ID
             }
         }
     };
 
-    const fetchLocationData = async (propertyId: any) => {
-        console.log("Fetching location data for propertyId:", propertyId);
-        const response = await fetch(`/api/locations?propertyId=${propertyId}`);
+    const fetchLocationData = async (trackerId: any) => {
+        console.log("Fetching location data for trackerId:", trackerId);
+        const response = await fetch(`/api/locations?trackerId=${trackerId}`); // Use trackerId
         const data = await response.json();
         console.log("Location Data:", data);
         if (data.success) {
             setLocationData(data.data);
-            fetchPropertyDetails(propertyId);
+            fetchPropertyDetails(selectedProperty);
         }
     };
+    console.log('TRACKER ID', trackerId);
+    console.log('LOCATION DATA: ', locationData)
 
     const fetchPropertyDetails = async (propertyId: any) => {
         const response = await fetch(`/api/properties?propertyId=${propertyId}`);
@@ -90,8 +97,18 @@ export default function DashboardPage() {
         console.log("Property Details:", data);
         if (data.success) {
             setPropertyDetails(data.data);
+            const property = data.data.find((prop: any) => prop._id === propertyId);
+            if (property) {
+                setTrackerId(property.trackerId); // Update tracker ID
+            }
         }
     };
+
+    useEffect(() => {
+        if (trackerId) {
+            fetchLocationData(trackerId);
+        }
+    }, [trackerId]);
 
     useEffect(() => {
         if (selectedProperty) {

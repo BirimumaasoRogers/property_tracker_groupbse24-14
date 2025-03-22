@@ -31,7 +31,7 @@ import { Textarea } from "../ui/textarea";
 const formSchema = z.object({
     name: z.string().min(2, { message: "Name should have more than 2 characters" }),
     description: z.string().min(2, { message: "Description should have more than 2 characters" }),
-    trackerID: z.string().min(2, { message: "Input a valid Tracker ID" }),
+    trackerId: z.string().min(2, { message: "Input a valid Tracker ID" }),
     geofence: z.array(
         z.object({
             lat: z.number(),
@@ -49,7 +49,7 @@ export default function PropertyRegisterForm() {
         defaultValues: {
             name: "",
             description: "",
-            trackerID: "",
+            trackerId: "",
             geofence: [],
         },
     });
@@ -138,7 +138,7 @@ export default function PropertyRegisterForm() {
                                     <div className="flex-1 space-y-2">
                                         <FormField
                                             control={form.control}
-                                            name="trackerID"
+                                            name="trackerId"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
