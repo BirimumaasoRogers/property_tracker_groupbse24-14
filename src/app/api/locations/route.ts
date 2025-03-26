@@ -55,10 +55,32 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
     try {
+        await connectDB();
+        
         const url = new URL(req.url);
         const trackerId = url.searchParams.get("trackerId");
-
+        // console.log("🔹 trackerId:", trackerId); // Log the trackerId for verification
+        
+        // Also check for propertyId and find the associated trackerId if needed
         if (!trackerId) {
+            const propertyId = url.searchParams.get("propertyId");
+            console.log("🔹 propertyId fallback:", propertyId);
+            
+            if (propertyId) {
+                // If propertyId is provided but trackerId isn't, look up the property to get its trackerId
+                const property = await Property.findById(propertyId);
+                if (property && property.trackerID) {
+                    console.log("🔹 Found trackerId from propertyId:", property.trackerID);
+                    
+                    // Now fetch location using the trackerId from the property
+                    const latestLocation = await Location.find({ trackerId: property.trackerID })
+                        .sort({ createdAt: -1 })
+                        .limit(1);
+                    
+                    return NextResponse.json({ success: true, data: latestLocation });
+                }
+            }
+            
             return NextResponse.json({ success: false, error: 'No tracker ID provided' }, { status: 400 });
         }
 
@@ -68,6 +90,7 @@ export async function GET(req: Request) {
 
         return NextResponse.json({ success: true, data: latestLocation });
     } catch (error) {
+        console.error("❌ Error fetching location:", error);
         return NextResponse.json(
             { success: false, error: "Failed to fetch location data" },
             { status: 500 }
