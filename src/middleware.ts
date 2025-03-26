@@ -1,21 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionCookie } from 'better-auth/cookies'
+import { getSessionCookie } from "better-auth/cookies";
 
-// Middleware function to check authentication
 export async function middleware(request: NextRequest) {
-    const sessionCookie = getSessionCookie(request);
+    let sessionCookie: any = getSessionCookie(request);
 
-    // If no session exists, redirect to login page
     if (!sessionCookie) {
+        sessionCookie = request.cookies.get("better-auth.session_token")?.value; // Manual fallback
+    }
+
+    console.log("Session Cookie:", sessionCookie);
+
+    if (!sessionCookie) {
+        console.log("No session found, redirecting to login.");
         return NextResponse.redirect(new URL("/login", request.url));
     }
 
     return NextResponse.next();
 }
 
-// Middleware configuration: Define routes that require authentication
 export const config = {
-    matcher: [
-        "/dashboard", 
-    ],
+    matcher: ["/dashboard"],
 };

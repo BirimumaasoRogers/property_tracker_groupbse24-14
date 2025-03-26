@@ -43,8 +43,8 @@ export async function createAuthInstance() {
                 name: "better-auth.session_token",
                 options: {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: "lax",
+                    secure: process.env.NODE_ENV === "production" || process.env.USE_NGROK === "true",
+                    sameSite: process.env.USE_NGROK === "true" ? "None" : "Lax",
                 },
             },
         },
