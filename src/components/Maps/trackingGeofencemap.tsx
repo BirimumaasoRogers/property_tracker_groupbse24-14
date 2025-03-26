@@ -48,8 +48,53 @@ export default function TrackingGeofenceMap() {
                         lng: locationData.longitude,
                     };
                     setItemLocation(location);
-                    setMapCenter(location); // Update map center to match item location
-                    console.log("Updated item location:", location);
+                    setMapCenter(location);
+                 
+                    // console.log("Updated geofence:", DUMMY_GEOFENCE);
+                }
+             else {
+                console.log("No location data found or empty response");
+            }
+        } catch (error) {
+            console.error("Error fetching property location:", error);
+        } finally {
+            setIsLoading(false);
+        }
+                
+        };
+        fetchPropertyLocation();
+    }, [trackerId]); // Only depend on trackerId, not itemLocation
+
+
+    
+    //fetch data from db
+    useEffect(() => {
+        if (!trackerId) return;
+
+        const fetchGeofence = async () => {
+            setIsLoading(true);
+            try {
+                const response = await fetch(`/api/properties?trackerId=${trackerId}`); // Added leading slash
+                const data = await response.json();
+                console.log("Geofence data response:", data);
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    const locationData = data.data.find((item: { trackerId: string }) => item.trackerId === trackerId);;
+
+        
+                    const geofenceCoordinates = Array.isArray(locationData.geofence)
+                    ? locationData.geofence.map((point: { lat: number; lng: number }) => ({
+                        lat: point.lat,
+                        lng: point.lng
+                    }))
+                    : DUMMY_GEOFENCE;
+                     console.log("New geofence geofence:", geofenceCoordinates);
+                     setPaths([]); 
+                    // setPaths(geofenceCoordinates);
+                    setPaths([...geofenceCoordinates]); // Ensures a new reference is created
+
+                    
+                   // Update map center to match item location
                 } else {
                     console.log("No location data found or empty response");
                 }
@@ -58,30 +103,11 @@ export default function TrackingGeofenceMap() {
             } finally {
                 setIsLoading(false);
             }
-        };
-
-        fetchPropertyLocation();
-    }, [trackerId]); // Only depend on trackerId, not itemLocation
-    
-    //fetch data from db
-    useEffect(() => {
-        if (!property) return;
-
-        const fetchGeofence = async () => {
-            try {
-                setPaths(DUMMY_GEOFENCE);
-                // const coordinates = await fetchGeofence(property);
-                // if (coordinates) {
-                //   setPaths(coordinates);
-                // }
-            } catch (error) {
-                console.error("Failed to fetch geofence:", error);
-                setPaths(DUMMY_GEOFENCE);
-            }
+           
         };
         
         fetchGeofence();
-    }, [property]);
+    }, [trackerId]);
 
     if (!isLoaded) return <div>Loading maps...</div>;
     if (isLoading) return <div>Loading location data...</div>;
