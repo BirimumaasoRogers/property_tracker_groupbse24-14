@@ -76,7 +76,7 @@ export default function TrackingGeofenceMap() {
             const isOutside = isItemOutsideGeofence(newLocation, paths);
             if (isOutside) {
                 setGeofenceColor("red");
-                alert("⚠️ Item has moved out of the geofence!"); // Outside geofence
+                // alert("⚠️ Item has moved out of the geofence!"); // Outside geofence
             } else {
                 setGeofenceColor("green"); // Inside geofence
             }
