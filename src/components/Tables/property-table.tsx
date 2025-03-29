@@ -187,6 +187,7 @@ const columns: ColumnDef<Item>[] = [
 ];
 
 export default function PropertyTable() {
+  
   const id = useId();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -318,6 +319,16 @@ export default function PropertyTable() {
   
     table.getColumn("gpsTagStatus")?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
   };
+
+
+  // MOUNT TO PREVENT USE CONTEXT ERROR DURING SSR BUILDS
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
   
 
   return (
