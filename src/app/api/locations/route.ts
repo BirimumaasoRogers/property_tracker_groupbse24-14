@@ -43,10 +43,10 @@ export async function POST(req: Request) {
         console.log("✅ Saved Location:", result);
 
         return NextResponse.json({ success: true, data: result });
-    } catch (error) {
+    } catch (error: any) {
         console.error("❌ Error handling request:", error);
         return NextResponse.json(
-            { success: false, error: "Failed to create location" },
+            { success: false, error: error.message || "Failed to create location" },
             { status: 500 }
         );
     }
