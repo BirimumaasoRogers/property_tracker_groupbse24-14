@@ -37,6 +37,7 @@ export async function POST(req: Request) {
             trackerId: data.trackerId,
             latitude: data.latitude,
             longitude: data.longitude,
+            speed: data.speed,
             timestamp: new Date(),
         });
 
