@@ -23,9 +23,12 @@ export async function POST(req: Request) {
 
         const data = await req.json();
         console.log("🔹 Received Data:", data);
+        console.log("🔹 Incoming Tracker ID:", data.trackerId);
 
+
+        const trackerId = data.trackerId.trim();
         // Fetch the property using trackerId
-        const property = await Property.findOne({ trackerId: data.trackerId });
+        const property = await Property.findOne({ trackerId }).lean();
         if (!property) {
             return NextResponse.json({ success: false, error: "Property not found" }, { status: 404 });
         }
