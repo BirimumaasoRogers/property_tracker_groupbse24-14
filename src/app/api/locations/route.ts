@@ -28,10 +28,10 @@ export async function POST(req: Request) {
 
         const trackerId = data.trackerId.trim();
         // Fetch the property using trackerId
-        const property = await Property.findOne({ trackerId }).lean();
-        if (!property) {
-            return NextResponse.json({ success: false, error: "Property not found" }, { status: 404 });
-        }
+        // const property = await Property.findOne({ trackerId }).lean();
+        // if (!property) {
+        //     return NextResponse.json({ success: false, error: "Property not found" }, { status: 404 });
+        // }
 
         const location = new Location({
             trackerId: data.trackerId,
