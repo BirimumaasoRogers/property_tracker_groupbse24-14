@@ -66,7 +66,14 @@ export async function GET(req: Request) {
             .sort({ createdAt: -1 })
             .limit(1);
 
-        return NextResponse.json({ success: true, data: latestLocation });
+            return NextResponse.json({
+                success: true,
+                data: latestLocation.map((loc) => ({
+                  latitude: loc.latitude,
+                  longitude: loc.longitude,
+                })),
+              });
+               
     } catch (error) {
         return NextResponse.json(
             { success: false, error: "Failed to fetch location data" },
