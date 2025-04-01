@@ -82,12 +82,12 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 type Item = {
   id: string;
   name: string;
+  trackerId?: string;
   gpsTagStatus: string;
   insideGeofence: string;
-  geofencePolygon: string;
   geofenceCoordinates: string;
   createdAt: string;
-  trackingHistory: string;
+  updatedAt: string;
 };
 
 
@@ -156,25 +156,23 @@ const columns: ColumnDef<Item>[] = [
     ),
     size: 120,
   },
-  {
-    header: "Geofence Polygon",
-    accessorKey: "geofencePolygon", // Changed from "email"
-    size: 150,
-  },
+
   {
     header: "Geofence Coordinates",
-    accessorKey: "geofenceCoordinates", // Changed from "location"
+    accessorKey: "geofenceCoordinates",
+      cell: ({ row }) => <span>{row.original.geofenceCoordinates}</span>,
     size: 200,
   },
+  
   {
     header: "Created At",
     accessorKey: "createdAt", // Changed from "performance"
     size: 180,
   },
   {
-    header: "Tracking History",
-    accessorKey: "trackingHistory", // Changed from "balance"
-    cell: ({ row }) => <div>{row.getValue("trackingHistory")}</div>,
+    header: "Updated At",
+    accessorKey: "updatedAt", // Changed from "balance"
+    cell: ({ row }) => <div>{row.getValue("updatedAt")}</div>,
     size: 200,
   },
   {
@@ -216,38 +214,85 @@ export default function PropertyTable() {
     fetchPosts();
   }, []);
   */
-  const [data, setData] = useState([
-    {
-      id: "1",
-      name: "Laptop",
-      gpsTagStatus: "Active",
-      insideGeofence: "Yes",
-      geofencePolygon: "Circle",
-      geofenceCoordinates: "12.345, -98.765",
-      createdAt: "2025-02-25 10:00:00",
-      trackingHistory: "Updated 2 hours ago",
-    },
-    {
-      id: "2",
-      name: "Phone",
-      gpsTagStatus: "Inactive",
-      insideGeofence: "No",
-      geofencePolygon: "Rectangle",
-      geofenceCoordinates: "34.567, -76.543",
-      createdAt: "2025-02-20 08:45:00",
-      trackingHistory: "Updated 3 days ago",
-    },
-    {
-      id: "3",
-      name: "Tablet",
-      gpsTagStatus: "Active",
-      insideGeofence: "Yes",
-      geofencePolygon: "Square",
-      geofenceCoordinates: "23.456, -87.654",
-      createdAt: "2025-01-30 09:20:00",
-      trackingHistory: "Updated 1 week ago",
-    },
-  ]);
+  const [rawProperties, setRawProperties] = useState<Item[]>([]);
+  const [data, setData] = useState<Item[]>([]);
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const res = await fetch("/api/properties");
+        const result = await res.json();
+  
+        if (result.success) {
+          const formatToEAT = (timestamp: string) => {
+            return new Date(timestamp).toLocaleString("en-UG", {
+              weekday: "long",     // e.g. Monday
+              year: "numeric",     // e.g. 2025
+              month: "long",       // e.g. March
+              day: "numeric",      // e.g. 31
+              hour: "numeric",     // e.g. 3 PM
+              minute: "2-digit",   // e.g. 03
+              hour12: true,        // use 12-hour format
+              timeZone: "Africa/Kampala" // East African Time (EAT)
+            }) + " (EAT)";
+          };
+          
+          const formattedData = result.data.map((item: any) => ({
+            id: item._id,
+            name: item.name,
+            trackerId: item.trackerId,
+            gpsTagStatus: item.gpsTagStatus ?? "--",
+            insideGeofence: item.insideGeofence ?? "--",
+            geofenceCoordinates: "--",
+            createdAt: formatToEAT(item.createdAt),
+            updatedAt: item.updatedAt ? formatToEAT(item.updatedAt) : "Not updated",
+          }));
+          
+  
+          setRawProperties(formattedData); // ✅ set this instead of `data`
+        }
+      } catch (err) {
+        console.error("Error fetching properties:", err);
+      }
+    };
+  
+    fetchProperties();
+  }, []);
+  
+  useEffect(() => {
+    async function fetchGeofenceCoordinates() {
+      const enrichedData = await Promise.all(
+        rawProperties.map(async (property) => {
+          try {
+            const res = await fetch(`/api/locations?trackerId=${property.trackerId}`);
+            const result = await res.json();
+  
+            console.log("📦 Location API Result for", property.trackerId, result); // <-- 👀 add this!
+  
+            if (result.success && result.data.length > 0) {
+              const { latitude, longitude } = result.data[0] ?? {};
+              return {
+                ...property,
+                geofenceCoordinates: `${latitude}, ${longitude}`,
+              };
+            } else {
+              return { ...property, geofenceCoordinates: "--" };
+            }
+          } catch (err) {
+            console.error("❌ Failed to fetch geofence for", property.trackerId, err);
+            return { ...property, geofenceCoordinates: "--" };
+          }
+        })
+      );
+  
+      setData(enrichedData);
+      console.log("📍 Enriched Data:", enrichedData);
+    }
+  
+    if (rawProperties.length > 0) {
+      fetchGeofenceCoordinates();
+    }
+  }, [rawProperties]);
+  
   
   const handleDeleteRows = () => {
     const selectedRows = table.getSelectedRowModel().rows;

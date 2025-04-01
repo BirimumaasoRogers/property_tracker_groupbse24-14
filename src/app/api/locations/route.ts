@@ -92,7 +92,14 @@ export async function GET(req: Request) {
             .sort({ createdAt: -1 })
             .limit(1);
 
-        return NextResponse.json({ success: true, data: latestLocation });
+            return NextResponse.json({
+                success: true,
+                data: latestLocation.map((loc) => ({
+                  latitude: loc.latitude,
+                  longitude: loc.longitude,
+                })),
+              });
+               
     } catch (error) {
         console.error("❌ Error fetching location:", error);
         return NextResponse.json(
