@@ -68,7 +68,7 @@ export default function DashboardPage() {
     const fetchProperties = async () => {
         const response = await fetch("/api/properties");
         const data = await response.json();
-        console.log("PROPERTIES", data); // Log the propertie
+        // console.log("PROPERTIES", data); // Log the propertie
         if (data.success) {
             setProperties(data.data);
             if (!selectedProperty) {
@@ -88,8 +88,8 @@ export default function DashboardPage() {
             fetchPropertyDetails(selectedProperty);
         }
     };
-    console.log('TRACKER ID', trackerId);
-    console.log('LOCATION DATA: ', locationData)
+    // console.log('TRACKER ID', trackerId);
+    // console.log('LOCATION DATA: ', locationData)
 
     const fetchPropertyDetails = async (propertyId: any) => {
         const response = await fetch(`/api/properties?propertyId=${propertyId}`);

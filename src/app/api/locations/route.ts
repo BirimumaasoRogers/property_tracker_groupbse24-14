@@ -23,17 +23,21 @@ export async function POST(req: Request) {
 
         const data = await req.json();
         console.log("🔹 Received Data:", data);
+        console.log("🔹 Incoming Tracker ID:", data.trackerId);
 
+
+        const trackerId = data.trackerId.trim();
         // Fetch the property using trackerId
-        const property = await Property.findOne({ trackerId: data.trackerId });
-        if (!property) {
-            return NextResponse.json({ success: false, error: "Property not found" }, { status: 404 });
-        }
+        // const property = await Property.findOne({ trackerId }).lean();
+        // if (!property) {
+        //     return NextResponse.json({ success: false, error: "Property not found" }, { status: 404 });
+        // }
 
         const location = new Location({
             trackerId: data.trackerId,
             latitude: data.latitude,
             longitude: data.longitude,
+            speed: data.speed,
             timestamp: new Date(),
         });
 
@@ -43,10 +47,10 @@ export async function POST(req: Request) {
         console.log("✅ Saved Location:", result);
 
         return NextResponse.json({ success: true, data: result });
-    } catch (error) {
+    } catch (error: any) {
         console.error("❌ Error handling request:", error);
         return NextResponse.json(
-            { success: false, error: "Failed to create location" },
+            { success: false, error: error.message || "Failed to create location" },
             { status: 500 }
         );
     }
@@ -55,10 +59,32 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
     try {
+        await connectDB();
+        
         const url = new URL(req.url);
         const trackerId = url.searchParams.get("trackerId");
-
+        // console.log("🔹 trackerId:", trackerId); // Log the trackerId for verification
+        
+        // Also check for propertyId and find the associated trackerId if needed
         if (!trackerId) {
+            const propertyId = url.searchParams.get("propertyId");
+            console.log("🔹 propertyId fallback:", propertyId);
+            
+            if (propertyId) {
+                // If propertyId is provided but trackerId isn't, look up the property to get its trackerId
+                const property = await Property.findById(propertyId);
+                if (property && property.trackerID) {
+                    console.log("🔹 Found trackerId from propertyId:", property.trackerID);
+                    
+                    // Now fetch location using the trackerId from the property
+                    const latestLocation = await Location.find({ trackerId: property.trackerID })
+                        .sort({ createdAt: -1 })
+                        .limit(1);
+                    
+                    return NextResponse.json({ success: true, data: latestLocation });
+                }
+            }
+            
             return NextResponse.json({ success: false, error: 'No tracker ID provided' }, { status: 400 });
         }
 
@@ -75,6 +101,7 @@ export async function GET(req: Request) {
               });
                
     } catch (error) {
+        console.error("❌ Error fetching location:", error);
         return NextResponse.json(
             { success: false, error: "Failed to fetch location data" },
             { status: 500 }

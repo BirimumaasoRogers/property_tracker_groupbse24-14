@@ -9,13 +9,15 @@ const DUMMY_GEOFENCE = [
     { lat: 0.3490, lng: 32.5810 },  // Bottom-right corner
     { lat: 0.3460, lng: 32.5810 },  // Bottom-left corner
     { lat: 0.3460, lng: 32.5840 },  // Top-left corner
-  ];
-  
-  
+];
   
 const defaultCenter = { lat: 0.3476, lng: 32.5825 };
 
 export default function TrackingGeofenceMap() {
+    const url = new URL(window.location.href);
+    const trackerId = url.searchParams.get("trackerId");
+    console.log("trackerId", trackerId);
+
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
         libraries: ["places","geometry"],
@@ -23,90 +25,108 @@ export default function TrackingGeofenceMap() {
 
     const [property, setProperty] = useState<string | null>(null);
     const [itemLocation, setItemLocation] = useState(defaultCenter);
+    const [mapCenter, setMapCenter] = useState(defaultCenter);
     const [paths, setPaths] = useState<{lat: number; lng: number}[]>([]);
     const [geofenceColor, setGeofenceColor] = useState("green"); 
+    const [isLoading, setIsLoading] = useState(true);
 
+    // Fetch location data only once when component mounts or trackerId changes
     useEffect(() => {
-        const fetchProperty = async () => {
+        if (!trackerId) return;
+        
+        const fetchPropertyLocation = async () => {
+            setIsLoading(true);
             try {
-                const response = await fetch("/api/property"); // Replace with actual API route
+                const response = await fetch(`/api/locations?trackerId=${trackerId}`); // Added leading slash
                 const data = await response.json();
-                if (data.property) setProperty(data.property);
-            } catch (error) {
-                console.error("Error fetching property:", error);
+                console.log("Location data response:", data);
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    const locationData = data.data[0];
+                    const location = {
+                        lat: locationData.latitude,
+                        lng: locationData.longitude,
+                    };
+                    setItemLocation(location);
+                    setMapCenter(location);
+                 
+                    // console.log("Updated geofence:", DUMMY_GEOFENCE);
+                }
+             else {
+                console.log("No location data found or empty response");
             }
+        } catch (error) {
+            console.error("Error fetching property location:", error);
+        } finally {
+            setIsLoading(false);
+        }
+                
         };
+        fetchPropertyLocation();
+    }, [trackerId]); // Only depend on trackerId, not itemLocation
 
-        fetchProperty();
-    }, []);
 
     
     //fetch data from db
     useEffect(() => {
-        if (!property) return;
+        if (!trackerId) return;
 
         const fetchGeofence = async () => {
+            setIsLoading(true);
             try {
-                setPaths(DUMMY_GEOFENCE);
-                // const coordinates = await fetchGeofence(property);
-                // if (coordinates) {
-                //   setPaths(coordinates);
-                // }
-              } catch (error) {
-                console.error("Failed to fetch geofence:", error);
-                setPaths(DUMMY_GEOFENCE);
+                const response = await fetch(`/api/properties?trackerId=${trackerId}`); // Added leading slash
+                const data = await response.json();
+                console.log("Geofence data response:", data);
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    const locationData = data.data.find((item: { trackerId: string }) => item.trackerId === trackerId);;
 
-              }
-              setPaths(DUMMY_GEOFENCE);
+        
+                    const geofenceCoordinates = Array.isArray(locationData.geofence)
+                    ? locationData.geofence.map((point: { lat: number; lng: number }) => ({
+                        lat: point.lat,
+                        lng: point.lng
+                    }))
+                    : DUMMY_GEOFENCE;
+                     console.log("New geofence geofence:", geofenceCoordinates);
+                     setPaths([]); 
+                    // setPaths(geofenceCoordinates);
+                    setPaths([...geofenceCoordinates]); // Ensures a new reference is created
 
-            };
-        fetchGeofence();
-    }, [property]);
-
-    
-// simulate live tracking
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const newLocation = {
-                lat: itemLocation.lat + (Math.random() - 0.5) * 0.001,
-                lng: itemLocation.lng + (Math.random() - 0.5) * 0.001
-            };
-            setItemLocation(newLocation);
-
-            const isOutside = isItemOutsideGeofence(newLocation, paths);
-            if (isOutside) {
-                setGeofenceColor("red");
-                // alert("⚠️ Item has moved out of the geofence!"); // Outside geofence
-            } else {
-                setGeofenceColor("green"); // Inside geofence
+                    
+                   // Update map center to match item location
+                } else {
+                    console.log("No location data found or empty response");
+                }
+            } catch (error) {
+                console.error("Error fetching property location:", error);
+            } finally {
+                setIsLoading(false);
             }
-        }, 5000); // Update location every 5 seconds   
-
            
+        };
+        
+        fetchGeofence();
+    }, [trackerId]);
 
-
-        return () => clearInterval(interval);
-    }, [itemLocation, paths]);
-
-    if (!isLoaded) return <div>Loading...</div>;
+    if (!isLoaded) return <div>Loading maps...</div>;
+    if (isLoading) return <div>Loading location data...</div>;
 
     return(
         <div>
-            
-
             <GoogleMap 
-            mapContainerStyle={{width: "100%", height: "400px"}} zoom={14} center={defaultCenter}
-            options={{
-                gestureHandling: "greedy",
-                    scrollwheel: true, // Allow zooming
+                mapContainerStyle={{width: "100%", height: "400px"}} 
+                zoom={14} 
+                center={mapCenter} // Use mapCenter instead of defaultCenter
+                options={{
+                    gestureHandling: "greedy",
+                    scrollwheel: true,
                     disableDoubleClickZoom: false,
-                    zoomControl: true, // Show zoom control buttons
-                    mapTypeControl: false, // Optional: Hide map type control (optional)
-                    // streetViewControl: false, // Optional: Hide street view control
-                    // fullscreenControl: false, // Optional: Hide fullscreen control
-            }}>
+                    zoomControl: true,
+                    mapTypeControl: false,
+                }}>
                
-                <Marker position = {itemLocation}  />
+                <Marker position={itemLocation} />
 
                 {paths.length > 0 && (
                     <Polygon 
@@ -120,18 +140,18 @@ export default function TrackingGeofenceMap() {
                         }} 
                     />
                 )}
-
             </GoogleMap>
         </div>
-    )
-    }
+    );
+}
+
 //when it crosses the boundary
-    export function isItemOutsideGeofence(itemLocation: { lat: number; lng: number }, paths: { lat: number; lng: number }[]): boolean {
-        if (typeof window !== "undefined" && google.maps.geometry) {
-            const polygon = new google.maps.Polygon({ paths });
-            const point = new google.maps.LatLng(itemLocation.lat, itemLocation.lng);
-            return !google.maps.geometry.poly.containsLocation(point, polygon);
-        }
-        return false;
+export function isItemOutsideGeofence(itemLocation: { lat: number; lng: number }, paths: { lat: number; lng: number }[]): boolean {
+    if (typeof window !== "undefined" && google.maps.geometry) {
+        const polygon = new google.maps.Polygon({ paths });
+        const point = new google.maps.LatLng(itemLocation.lat, itemLocation.lng);
+        return !google.maps.geometry.poly.containsLocation(point, polygon);
     }
+    return false;
+}
     
