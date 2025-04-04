@@ -6,6 +6,7 @@ import {
   Bot,
   GalleryVerticalEnd,
   Home,
+  Settings,
   Settings2,
   SquareTerminal,
   Tags,
@@ -21,6 +22,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { NavMain } from "../Nav/nav-main"
 
 // This is sample data.
 const data = {
@@ -36,89 +38,23 @@ const data = {
       plan: "Enterprise",
     },
   ],
-  navMain: [
-    {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
+  settings: [
     {
       title: "Settings",
       url: "#",
-      icon: Settings2,
+      icon: Settings,
       items: [
         {
-          title: "General",
-          url: "#",
+          title: "Profile",
+          url: "/dashboard/settings/profile",
         },
         {
-          title: "Team",
-          url: "#",
+          title: "Password",
+          url: "/dashboard/settings/password",
         },
         {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
+          title: "Notifications",
+          url: "/dashboard/settings/notifications",
         },
       ],
     },
@@ -138,14 +74,15 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        {/* <NavMain items={data.navMain} /> */}
         <NavProjects projects={data.projects} />
+        <NavMain items={data.settings} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

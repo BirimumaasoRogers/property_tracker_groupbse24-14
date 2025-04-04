@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { MapPin, Shield, Smartphone, Map, ArrowRight, Locate, Wifi } from "lucide-react"
+import { Shield, Smartphone, Map, ArrowRight, Locate, Wifi } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import LandingNav from "@/components/Nav/LandingNav"
@@ -74,7 +74,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold">Real-Time Tracking</h3>
                 <p className="text-center text-muted-foreground">
-                  Monitor your property's location in real-time with our GPS-powered tracking system.
+                  Monitor your property&rsquo;s location in real-time with our GPS-powered tracking system.
                 </p>
               </div>
               <div className="flex flex-col items-center space-y-4 rounded-lg border p-6 shadow-sm">
@@ -135,7 +135,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold">Track in Real-Time</h3>
                 <p className="text-center text-muted-foreground">
-                  Log into your dashboard to view your property's location in real-time on our interactive map.
+                  Log into your dashboard to view your property&rsquo;s location in real-time on our interactive map.
                 </p>
               </div>
             </div>

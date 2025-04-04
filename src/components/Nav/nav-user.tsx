@@ -28,6 +28,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { authClient } from "@/lib/auth-client"
+import Link from "next/link"
 
 export function NavUser({
   user,
@@ -85,14 +86,18 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <User size={18} />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell size={18} />
-                Notifications
-              </DropdownMenuItem>
+              <Link href="/dashboard/settings/profile">
+                <DropdownMenuItem>
+                  <User size={18} />
+                  Profile
+                </DropdownMenuItem>
+              </Link>
+              <Link href="/dashboard/settings/notifcations">
+                <DropdownMenuItem>
+                  <Bell size={18} />
+                  Notifications
+                </DropdownMenuItem>
+              </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
