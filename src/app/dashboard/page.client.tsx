@@ -158,7 +158,7 @@ export default function DashboardPage() {
                         <CardHeader className="pb-2">
                             <CardTitle className="">Select a property</CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="flex flex-col justify-between gap-4">
                             <div className="[--ring:var(--color-indigo-300)] *:not-first:mt-2 in-[.dark]:[--ring:var(--color-indigo-900)]">
                                 <Select onValueChange={setSelectedProperty} value={selectedProperty}>
                                     <SelectTrigger>
@@ -172,6 +172,11 @@ export default function DashboardPage() {
                                         ))}
                                     </SelectContent>
                                 </Select>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500">
+                                    <span className="font-semibold text-black">NOTE: </span>
+                                    Please select a property from the options above</p>
                             </div>
                         </CardContent>
                         {/* <CardFooter>

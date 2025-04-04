@@ -8,7 +8,7 @@ export default function LoginPage() {
     <div className="grid min-h-svh lg:grid-cols-2">
         <div className="relative hidden bg-muted lg:block">
         <Image
-          src="/public/images/placeholder.jpg"
+          src="/images/placeholder.svg"
           width={0}
           height={0}
           alt="Image"
