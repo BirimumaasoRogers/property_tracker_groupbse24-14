@@ -23,6 +23,8 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { NavMain } from "../Nav/nav-main"
+import { useEffect, useState } from "react"
+import { authClient } from "@/lib/auth-client" // Import your auth client
 
 // This is sample data.
 const data = {
@@ -33,9 +35,9 @@ const data = {
   },
   teams: [
     {
-      name: "Acme Inc",
+      name: "PropertyTracker",
       logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+      plan: "System",
     },
   ],
   settings: [
@@ -74,7 +76,29 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  
+  const [user, setUser] = useState(data.user) // Initialize with sample data
+  console.log("SESSION USER",user)
+
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const session: any = await authClient.getSession() // Fetch session data
+        console.log("SESSION", session)
+        if (session?.data?.user) {
+          setUser({
+            name: session.data.user.name,
+            email: session.data.user.email,
+            avatar: session.data.user.image || "/avatars/default.jpg", // Use default if no image
+          })
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error)
+      }
+    }
+
+    fetchUserData()
+  }, [])
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -85,7 +109,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.settings} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} /> {/* Use the fetched user data */}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
