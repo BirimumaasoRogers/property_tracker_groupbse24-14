@@ -247,7 +247,7 @@ export default function DashboardPage() {
                                 </div>
                                 <Separator className="my-4" />
                                 <div className="grid gap-3">
-                                    <div className="font-semibold">Geofence Information</div>
+                                    <div className="font-semibold">GPS Information</div>
                                     <ul className="grid gap-3">
                                         <li className="flex items-center justify-between">
                                             <span className="text-muted-foreground">Coordinates</span>
