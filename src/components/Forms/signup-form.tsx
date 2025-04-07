@@ -27,9 +27,6 @@ const formSchema = z
         email: z.string().email({
             message: "Please enter a valid email address.",
         }),
-        phone: z.string().min(10, {
-            message: "Number must be 10 digits or more.",
-        }),
         password: z.string().min(8, {
             message: "Password must be 8 characters or more.",
         }),
@@ -52,7 +49,6 @@ export function SignupForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
             email: "",
-            phone: "",
             password: "",
             confirmPassword: "",
         },
@@ -121,18 +117,6 @@ export function SignupForm({
                             <FormItem>
                                 <FormControl>
                                     <Input placeholder="Email" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormControl>
-                                    <Input placeholder="Phone number" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

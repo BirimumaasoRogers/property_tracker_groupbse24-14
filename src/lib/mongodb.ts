@@ -1,5 +1,7 @@
 // lib/mongodb.ts
 import mongoose from "mongoose";
+import "@/models/Property";
+import "@/models/User";
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
 

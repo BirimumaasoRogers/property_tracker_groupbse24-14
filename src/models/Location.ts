@@ -8,6 +8,8 @@ const LocationSchema = new Schema({
   timestamp: { type: Date },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
+}, {
+  collection: "locations"
 });
 
 export default models.Location || model("Location", LocationSchema);

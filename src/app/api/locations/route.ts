@@ -72,7 +72,7 @@ export async function GET(req: Request) {
             
             if (propertyId) {
                 // If propertyId is provided but trackerId isn't, look up the property to get its trackerId
-                const property = await Property.findById(propertyId);
+                const property: any = await Property.findById(propertyId);
                 if (property && property.trackerID) {
                     console.log("🔹 Found trackerId from propertyId:", property.trackerID);
                     
