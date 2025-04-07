@@ -79,7 +79,7 @@ export default function TrackingGeofenceMap() {
         };
         
         fetchPropertyLocation();
-    }, [trackerId, isMounted, paths]);
+    }, [trackerId, isMounted]);
     
     // Fetch geofence data
     useEffect(() => {
@@ -114,8 +114,9 @@ export default function TrackingGeofenceMap() {
             }
         };
         checkIfItemOutsideGeofence(itemLocation, paths);
-
         fetchGeofence();
+
+        checkIfItemOutsideGeofence(itemLocation, paths);
     }, [trackerId]);
 
     const checkIfItemOutsideGeofence = async (
