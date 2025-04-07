@@ -44,8 +44,8 @@ export async function GET(req: Request) {
         const response = {
             success: true,
             data: {
-                name: property.name,
-                phone: property.phone,
+                name: property.data.name,
+                phone: property.data.phone,
             }
         };
 
