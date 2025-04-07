@@ -62,7 +62,8 @@ export default function TrackingGeofenceMap() {
                         const location = { lat, lng };
                         setItemLocation(location);
                         setMapCenter(location);
-                        console.log("Updated location:", location);
+
+                    
                     } else {
                         console.error("Invalid coordinates:", locationData);
                         // Keep using default center if coordinates are invalid
@@ -78,7 +79,7 @@ export default function TrackingGeofenceMap() {
         };
         
         fetchPropertyLocation();
-    }, [trackerId, isMounted]);
+    }, [trackerId, isMounted, paths]);
     
     // Fetch geofence data
     useEffect(() => {
@@ -120,9 +121,58 @@ export default function TrackingGeofenceMap() {
                 setPaths(DUMMY_GEOFENCE);
             }
         };
+        checkIfItemOutsideGeofence(itemLocation, paths);
         
         fetchGeofence();
     }, [trackerId]);
+
+    const checkIfItemOutsideGeofence = async (
+        itemLocation: { lat: number; lng: number },
+        paths: { lat: number; lng: number }[]
+    ) => {
+        if (typeof window !== "undefined" && google && google.maps && google.maps.geometry) {
+            const polygon = new google.maps.Polygon({ paths });
+            const point = new google.maps.LatLng(itemLocation.lat, itemLocation.lng);
+
+            const isOutside = !google.maps.geometry.poly.containsLocation(point, polygon);
+
+            if (isOutside) {
+                // Update geofence color to red
+                setGeofenceColor("red");
+
+                // Send "out of bounds" message to the database
+                try {
+                    await fetch("/api/geofence-alert", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            message: "Item is out of bounds",
+                            location: itemLocation,
+                        }),
+                    });
+                    console.log("Out of bounds message sent to the database.");
+                } catch (error) {
+                    console.error("Failed to send out of bounds message:", error);
+                }
+
+                // Prompt the user for confirmation
+                // const userConfirmed = window.confirm(
+                //     "Your item has stepped out of the geofence boundary. Are you the one who moved it?"
+                // );
+
+                //  if (userConfirmed) {
+                //     console.log("User confirmed they moved the item.");
+                // } else {
+                //     console.log("User denied moving the item.");
+                // }
+            } else {
+                // Reset geofence color to green if the item is inside
+                setGeofenceColor("green");
+            }
+        }
+    };
 
     // Don't render anything during SSR
     if (!isMounted) return null;
@@ -140,6 +190,8 @@ export default function TrackingGeofenceMap() {
         !isNaN(mapCenter.lng) && 
         isFinite(mapCenter.lng)
     ) ? mapCenter : defaultCenter;
+
+   
 
     return(
         <div>
@@ -175,15 +227,14 @@ export default function TrackingGeofenceMap() {
             </GoogleMap>
         </div>
     );
-}
 
-//when it crosses the boundary
-export function isItemOutsideGeofence(itemLocation: { lat: number; lng: number }, paths: { lat: number; lng: number }[]): boolean {
-    if (typeof window !== "undefined" && google && google.maps && google.maps.geometry) {
-        const polygon = new google.maps.Polygon({ paths });
-        const point = new google.maps.LatLng(itemLocation.lat, itemLocation.lng);
-        return !google.maps.geometry.poly.containsLocation(point, polygon);
-    }
-    return false;
+    // const isItemOutsideGeofence(itemLocation: { lat: number; lng: number }, paths: { lat: number; lng: number }[]): boolean {
+    //     if (typeof window !== "undefined" && google && google.maps && google.maps.geometry) {
+    //         const polygon = new google.maps.Polygon({ paths });
+    //         const point = new google.maps.LatLng(itemLocation.lat, itemLocation.lng);
+    //         return !google.maps.geometry.poly.containsLocation(point, polygon);
+    //     }
+    //     return false;
+    // }
+        
 }
-    
