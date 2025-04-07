@@ -87,31 +87,23 @@ export default function TrackingGeofenceMap() {
 
         const fetchGeofence = async () => {
             try {
-                const response = await fetch(`/api/properties?trackerId=${trackerId}`);
+                const response = await fetch(`/api/properties/${trackerId}`);
                 const data = await response.json();
                 console.log("Geofence data response:", data);
-                
-                if (data.success && data.data && data.data.length > 0) {
-                    const locationData = data.data.find((item: { trackerId: string }) => item.trackerId === trackerId);
-                    
-                    if (locationData && locationData.geofence) {
-                        const geofenceCoordinates = Array.isArray(locationData.geofence)
-                            ? locationData.geofence.map((point: { lat: any; lng: any }) => {
-                                // Validate each coordinate
-                                const lat = parseFloat(point.lat);
-                                const lng = parseFloat(point.lng);
-                                return {
-                                    lat: isNaN(lat) ? 0 : lat,
-                                    lng: isNaN(lng) ? 0 : lng
-                                };
-                            })
-                            : DUMMY_GEOFENCE;
-                            
-                        console.log("New geofence:", geofenceCoordinates);
-                        setPaths([...geofenceCoordinates]); // Ensures a new reference is created
-                    } else {
-                        setPaths(DUMMY_GEOFENCE);
-                    }
+
+                if (data.success && data.data && data.data.geofence && data.data.geofence.length > 0) {
+                    const geofenceCoordinates = data.data.geofence.map((point: { lat: any; lng: any }) => {
+                        // Validate each coordinate
+                        const lat = parseFloat(point.lat);
+                        const lng = parseFloat(point.lng);
+                        return {
+                            lat: isNaN(lat) ? 0 : lat,
+                            lng: isNaN(lng) ? 0 : lng
+                        };
+                    });
+
+                    console.log("New geofence:", geofenceCoordinates);
+                    setPaths([...geofenceCoordinates]); // Ensures a new reference is created
                 } else {
                     console.log("No geofence data found or empty response");
                     setPaths(DUMMY_GEOFENCE);
@@ -122,7 +114,7 @@ export default function TrackingGeofenceMap() {
             }
         };
         checkIfItemOutsideGeofence(itemLocation, paths);
-        
+
         fetchGeofence();
     }, [trackerId]);
 
