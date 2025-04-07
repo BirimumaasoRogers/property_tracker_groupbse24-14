@@ -80,12 +80,12 @@ export default function GeofenceMap({ onPolygonChange }: { onPolygonChange: (coo
 
     return (
         <>
-            <div className="mb-4">
-                <Autocomplete onLoad={(auto) => (autocompleteRef.current = auto)} onPlaceChanged={handlePlaceSelect}>
+            <div className="mb-4 z-50 relative">
+                <Autocomplete className="relative z-50" onLoad={(auto) => (autocompleteRef.current = auto)} onPlaceChanged={handlePlaceSelect}>
                     <Input type="text" placeholder="Search for a location" className="w-full p-2 border rounded" />
                 </Autocomplete>
             </div>
-            <div className="border rounded-sm">
+            <div className="border rounded-sm z-10">
                 <GoogleMap mapContainerStyle={mapContainerStyle} zoom={12} center={center}>
                     <Polygon
                         paths={paths}

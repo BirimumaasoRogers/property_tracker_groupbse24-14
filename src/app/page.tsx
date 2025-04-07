@@ -147,9 +147,9 @@ export default function LandingPage() {
           <div className="px-4 md:px-12">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
               <div className="flex items-center justify-center">
-                <div className="relative w-full max-w-[500px] aspect-square overflow-hidden rounded-xl border bg-background shadow-xl">
+                <div className="relative w-full max-w-[500px] overflow-hidden rounded-xl border bg-background shadow-xl">
                   <Image
-                    src="/images/hardware.jpg"
+                    src="/images/hardware2.jpg"
                     alt="GPS Tracker Hardware"
                     width={500}
                     height={500}
@@ -157,7 +157,7 @@ export default function LandingPage() {
                   />
                 </div>
               </div>
-              <div className="flex flex-col justify-center space-y-4">
+              <div className="flex flex-col justify-center space-y-6">
                 <div className="space-y-2">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Powered by Advanced Hardware</h2>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">

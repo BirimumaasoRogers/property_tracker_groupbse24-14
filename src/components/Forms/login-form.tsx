@@ -38,7 +38,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
   });
 
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); 
 
   // Submit Handler
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -108,7 +108,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 
           {/* Forgot Password */}
           <div className="flex justify-center items-center">
-            <Link href="/auth/recover" className="text-sm underline-offset-4 hover:underline">
+            <Link href="forgot-password" className="text-sm underline-offset-4 hover:underline">
               Forgot your password?
             </Link>
           </div>
