@@ -3,6 +3,7 @@ import { Divide, Plus } from "lucide-react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
     Dialog,
     DialogContent,
@@ -41,9 +42,10 @@ const formSchema = z.object({
     ).min(3, "Please draw a valid polygon with at least 3 points")
 });
 
-export default function PropertyRegisterForm() {
+export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: () => void }) {
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
+    const router = useRouter();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -78,6 +80,11 @@ export default function PropertyRegisterForm() {
             toast.success('Property created successfully');
             setOpen(false);
             form.reset();
+            if (onSuccess) {
+                onSuccess(); // Useful if you're using SWR or React Query
+            } else {
+                router.refresh(); // Default fallback
+            }
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Failed to create property');
         } finally {

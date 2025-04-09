@@ -151,7 +151,7 @@ export default function DashboardPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardFooter>
-                            <PropertyRegisterForm />
+                            <PropertyRegisterForm onSuccess={fetchProperties}  />
                         </CardFooter>
                     </Card>
                     <Card className="w-full sm:col-span-2">
