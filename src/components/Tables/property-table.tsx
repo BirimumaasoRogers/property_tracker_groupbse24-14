@@ -158,7 +158,7 @@ const columns: ColumnDef<Item>[] = [
   },
 
   {
-    header: "Geofence Coordinates",
+    header: "GPS Coordinates",
     accessorKey: "geofenceCoordinates",
       cell: ({ row }) => <span>{row.original.geofenceCoordinates}</span>,
     size: 200,

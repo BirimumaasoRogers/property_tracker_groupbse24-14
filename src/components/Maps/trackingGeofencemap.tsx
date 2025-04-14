@@ -8,6 +8,7 @@ import {
   useLoadScript,
 } from "@react-google-maps/api";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "next/navigation";
 
 const DUMMY_GEOFENCE = [
   { lat: 0.349, lng: 32.584 },
@@ -16,11 +17,13 @@ const DUMMY_GEOFENCE = [
   { lat: 0.346, lng: 32.584 },
 ];
 
-const defaultCenter = { lat: 0.3476, lng: 32.5825 };
+const defaultCenter = { lat: 0.3314595942674423, lng: 32.57059696041971 };
 
 export default function TrackingGeofenceMap() {
-  const url = new URL(window.location.href);
-  const trackerId = url.searchParams.get("trackerId");
+  const [isMounted, setIsMounted] = useState(false);
+  const searchParams = useSearchParams();
+  const trackerId = searchParams.get("trackerId");
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     libraries: ["places", "geometry"],
@@ -29,27 +32,34 @@ export default function TrackingGeofenceMap() {
   const [itemLocation, setItemLocation] = useState(defaultCenter);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
   const [paths, setPaths] = useState<{ lat: number; lng: number }[]>([]);
-  const [geofenceColor] = useState("green");
+  const [geofenceColor, setGeofenceColor] = useState("green");
   const [isLoading, setIsLoading] = useState(true);
 
   const mapRef = useRef<google.maps.Map | null>(null);
   const markerRef = useRef<google.maps.Marker | null>(null);
 
   useEffect(() => {
-    if (!trackerId) return;
+    setIsMounted(true);
+  }, []);
+
+  // Fetch location
+  useEffect(() => {
+    if (!trackerId || !isMounted) return;
     const fetchLocation = async () => {
       setIsLoading(true);
       try {
         const res = await fetch(`/api/locations?trackerId=${trackerId}`);
         const data = await res.json();
+
         if (data.success && data.data?.length > 0) {
-          const loc = data.data[0];
-          const location = {
-            lat: parseFloat(loc.latitude),
-            lng: parseFloat(loc.longitude),
-          };
-          setItemLocation(location);
-          setMapCenter(location);
+          const { latitude, longitude } = data.data[0];
+          const lat = parseFloat(latitude);
+          const lng = parseFloat(longitude);
+          if (isFinite(lat) && isFinite(lng)) {
+            const location = { lat, lng };
+            setItemLocation(location);
+            setMapCenter(location);
+          }
         }
       } catch (err) {
         console.error("Error fetching location:", err);
@@ -58,31 +68,64 @@ export default function TrackingGeofenceMap() {
       }
     };
     fetchLocation();
-  }, [trackerId]);
+  }, [trackerId, isMounted]);
 
+  // Fetch geofence
   useEffect(() => {
     if (!trackerId) return;
+
     const fetchGeofence = async () => {
-      setIsLoading(true);
       try {
-        const res = await fetch(`/api/properties?trackerId=${trackerId}`);
+        const res = await fetch(`/api/properties/${trackerId}`);
         const data = await res.json();
-        if (data.success && data.data?.length > 0) {
-          const prop = data.data.find((p: any) => p.trackerId === trackerId);
-          const geo = Array.isArray(prop?.geofence)
-            ? prop.geofence.map((pt: any) => ({ lat: pt.lat, lng: pt.lng }))
-            : DUMMY_GEOFENCE;
-          setPaths([...geo]);
+
+        if (data.success && Array.isArray(data.data?.geofence)) {
+          const geofenceCoordinates = data.data.geofence.map((point: any) => ({
+            lat: parseFloat(point.lat),
+            lng: parseFloat(point.lng),
+          }));
+          setPaths(geofenceCoordinates);
+          checkIfItemOutsideGeofence(itemLocation, geofenceCoordinates);
+        } else {
+          setPaths(DUMMY_GEOFENCE);
         }
       } catch (err) {
         console.error("Error fetching geofence:", err);
-      } finally {
-        setIsLoading(false);
+        setPaths(DUMMY_GEOFENCE);
       }
     };
+
     fetchGeofence();
   }, [trackerId]);
 
+  // Check geofence
+  const checkIfItemOutsideGeofence = async (
+    location: { lat: number; lng: number },
+    polygonPath: { lat: number; lng: number }[]
+  ) => {
+    if (typeof window !== "undefined" && google.maps?.geometry) {
+      const polygon = new google.maps.Polygon({ paths: polygonPath });
+      const point = new google.maps.LatLng(location.lat, location.lng);
+      const isOutside = !google.maps.geometry.poly.containsLocation(point, polygon);
+
+      if (isOutside) {
+        setGeofenceColor("red");
+        try {
+          await fetch("/api/geofence-alert", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: "Item is out of bounds", location }),
+          });
+        } catch (err) {
+          console.error("Alert send failed:", err);
+        }
+      } else {
+        setGeofenceColor("green");
+      }
+    }
+  };
+
+  // Controls
   const goToGeofence = () => {
     if (!mapRef.current || paths.length === 0) return;
     const bounds = new google.maps.LatLngBounds();
@@ -90,17 +133,7 @@ export default function TrackingGeofenceMap() {
     mapRef.current.fitBounds(bounds);
   };
 
-
-  const pingItem = () => {
-    if (markerRef.current) {
-      markerRef.current.setAnimation(google.maps.Animation.BOUNCE);
-      setTimeout(() => markerRef.current?.setAnimation(null), 1500);
-    }
-  };
-
   const goToItem = () => {
-    console.log("📍 Going to item:", itemLocation);
-  
     if (
       mapRef.current &&
       itemLocation &&
@@ -111,32 +144,42 @@ export default function TrackingGeofenceMap() {
     ) {
       try {
         mapRef.current.panTo(itemLocation);
-        mapRef.current.setZoom(18  ); // Optional: zoom closer
-      } catch (error) {
-        console.error("Error centering on item:", error);
+        mapRef.current.setZoom(18);
+      } catch (err) {
+        console.error("Error centering on item:", err);
       }
     } else {
-      console.warn("⚠️ Invalid item location:", itemLocation);
+      console.warn("Invalid item location:", itemLocation);
     }
   };
-  
-  if (!isLoaded) return <div>Loading maps...</div>;
-  if (isLoading) return <div>Loading location data...</div>;
+
+  const pingItem = () => {
+    if (markerRef.current) {
+      markerRef.current.setAnimation(google.maps.Animation.BOUNCE);
+      setTimeout(() => markerRef.current?.setAnimation(null), 1500);
+    }
+  };
+
+  if (!isMounted) return null;
+  if (!isLoaded) return <div>Loading map...</div>;
+  if (isLoading) return <div>Loading location...</div>;
 
   return (
     <div className="space-y-4">
       <div className="flex gap-4">
-      <Button onClick={goToGeofence}>Go to Geofence</Button>
+        <Button onClick={goToGeofence}>Go to Geofence</Button>
         <Button onClick={goToItem}>Go to Item</Button>
         <Button onClick={pingItem} variant="destructive">Ping Item</Button>
       </div>
+
       <GoogleMap
         mapContainerStyle={{ width: "100%", height: "400px" }}
         zoom={14}
         center={mapCenter}
         onLoad={(map) => {
             mapRef.current = map;
-          }}        
+          }}
+          
         options={{
           gestureHandling: "greedy",
           scrollwheel: true,
@@ -164,16 +207,4 @@ export default function TrackingGeofenceMap() {
       </GoogleMap>
     </div>
   );
-}
-
-export function isItemOutsideGeofence(
-  itemLocation: { lat: number; lng: number },
-  paths: { lat: number; lng: number }[]
-): boolean {
-  if (typeof window !== "undefined" && google.maps.geometry) {
-    const polygon = new google.maps.Polygon({ paths });
-    const point = new google.maps.LatLng(itemLocation.lat, itemLocation.lng);
-    return !google.maps.geometry.poly.containsLocation(point, polygon);
-  }
-  return false;
 }

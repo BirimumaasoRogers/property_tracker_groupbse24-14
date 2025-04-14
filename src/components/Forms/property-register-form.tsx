@@ -1,8 +1,9 @@
 'use client';
-import { Plus } from "lucide-react";
+import { Divide, Plus } from "lucide-react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
     Dialog,
     DialogContent,
@@ -32,6 +33,7 @@ const formSchema = z.object({
     name: z.string().min(2, { message: "Name should have more than 2 characters" }),
     description: z.string().min(2, { message: "Description should have more than 2 characters" }),
     trackerId: z.string().min(2, { message: "Input a valid Tracker ID" }),
+    phone: z.string().min(10, { message: "Phone number should be 10 digits or more" }),
     geofence: z.array(
         z.object({
             lat: z.number(),
@@ -40,9 +42,10 @@ const formSchema = z.object({
     ).min(3, "Please draw a valid polygon with at least 3 points")
 });
 
-export default function PropertyRegisterForm() {
+export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: () => void }) {
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
+    const router = useRouter();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -50,6 +53,7 @@ export default function PropertyRegisterForm() {
             name: "",
             description: "",
             trackerId: "",
+            phone: "",
             geofence: [],
         },
     });
@@ -66,16 +70,21 @@ export default function PropertyRegisterForm() {
                 },
                 body: JSON.stringify(values),
             });
-    
+
             const result = await response.json();
-    
+
             if (!result.success) {
                 throw new Error(result.error || 'Failed to create property');
             }
-    
+
             toast.success('Property created successfully');
             setOpen(false);
             form.reset();
+            if (onSuccess) {
+                onSuccess(); // Useful if you're using SWR or React Query
+            } else {
+                router.refresh(); // Default fallback
+            }
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Failed to create property');
         } finally {
@@ -150,6 +159,25 @@ export default function PropertyRegisterForm() {
                                         />
                                     </div>
                                 </div>
+                                <div className="flex flex-col gap-4 sm:flex-row">
+                                    <div className="flex-1 space-y-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="phone"
+                                            render={({ field }) => (
+                                                <div>
+                                                    <Label className="text-sm text-gray-500">Phone Number you want to receive notifications:</Label>
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Input type="tel" placeholder="+1234567890" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                </div>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
                                 <div className="*:not-first:mt-2">
                                     <FormField
                                         control={form.control}
@@ -158,7 +186,7 @@ export default function PropertyRegisterForm() {
                                             <FormItem>
                                                 <Label>Geofence Area</Label>
                                                 <FormControl>
-                                                <GeofenceMap
+                                                    <GeofenceMap
                                                         onPolygonChange={(coords) => {
                                                             // Parse the string to array before setting the form value
                                                             field.onChange(JSON.parse(coords));

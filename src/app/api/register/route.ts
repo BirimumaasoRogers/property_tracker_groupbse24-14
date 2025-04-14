@@ -1,30 +1,23 @@
 import { NextResponse } from "next/server";
-import { createAuthInstance } from "@/lib/auth";
+import { connectDB } from "@/lib/mongodb";
+import User from "@/models/User";
 
 export async function POST(request: Request) {
-  try {
-    const { username, email, password } = await request.json();
+    try {
+        await connectDB();
+        const { name, email, password, phone } = await request.json();
 
-    if (!username || !email || !password) {
-      return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
+        if (!name || !email || !password || !phone) {
+            return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
+        }
+
+        const newUser = new User({ name, email, password, phone });
+        console.log("NEW USER", newUser)
+        await newUser.save();
+
+        return NextResponse.json({ success: true, message: "User registered successfully" });
+    } catch (error) {
+        console.error("Registration Error:", error);
+        return NextResponse.json({ success: false, error: "Registration failed" }, { status: 500 });
     }
-
-    const auth = await createAuthInstance();
-    const response = await auth.handler(request);
-    
-    if (!response.ok) {
-      const error = await response.json();
-      if (error.code === 'USER_ALREADY_EXISTS') {
-        return NextResponse.json({ message: "User already exists" }, { status: 409 });
-      }
-      throw error;
-    }
-
-    const user = await response.json();
-    return NextResponse.json({ message: "User registered successfully", userId: user.id }, { status: 201 });
-    
-  } catch (error: any) {
-    console.error(error);
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
-  }
 }

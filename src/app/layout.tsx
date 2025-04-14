@@ -4,6 +4,8 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import {SpeedInsights} from "@vercel/speed-insights/next"
 import { Toaster } from "@/components/ui/sonner";
+import LandingNav from "@/components/Nav/LandingNav";
+import LandingFooter from "@/components/LandingFooter";
 
 const lato = Lato({
   subsets: ["latin"],

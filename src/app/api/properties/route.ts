@@ -7,18 +7,38 @@ export async function GET(req: Request) {
     try {
         await connectDB();
         
+        const { searchParams } = new URL(req.url);
+        const trackerId = searchParams.get("trackerId");
+        
+        if (trackerId) {
+            // Special unauthenticated endpoint for hardware lookup
+            const property: any = await Property.findOne({ trackerId }).lean();
+
+            if (!property) {
+                return NextResponse.json(
+                    { success: false, error: "Property not found" },
+                    { status: 404 }
+                );
+            }
+
+            return NextResponse.json({ 
+                success: true, 
+                data: { name: property.name, phone: property.phone } 
+            });
+        }
+
+        // Original authenticated endpoint for user's properties
         const auth = await createAuthInstance();
         const cookieHeader = req.headers.get('cookie');
         const sessionToken = cookieHeader?.match(/(?:better-auth\.session_token|__Secure-better-auth\.session_token)=([^;]+)/)?.[1];
-        console.log("Session Token:", sessionToken); // Log the session token here
-
+        
         if (!sessionToken) {
             return NextResponse.json({ success: false, error: 'No session token found' }, { status: 401 });
         }
 
         const session = await auth.api.getSession({
             headers: new Headers({
-                Cookie: cookieHeader // Use the original cookie header
+                Cookie: cookieHeader
             })
         });
 

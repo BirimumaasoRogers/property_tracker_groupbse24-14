@@ -28,6 +28,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { authClient } from "@/lib/auth-client"
+import Link from "next/link"
 
 export function NavUser({
   user,
@@ -35,6 +36,10 @@ export function NavUser({
   user: any
 }) {
   const { isMobile } = useSidebar()
+
+  const initials = user?.name
+    ? user.name.split(' ').map((word: string) => word[0]).join('')
+    : 'CN';
 
   const handleSignOut = async () => {
     try {
@@ -56,7 +61,7 @@ export function NavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user?.avatar} alt={user?.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user?.name}</span>
@@ -85,14 +90,18 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <User size={18} />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell size={18} />
-                Notifications
-              </DropdownMenuItem>
+              <Link href="/dashboard/settings/profile">
+                <DropdownMenuItem>
+                  <User size={18} />
+                  Profile
+                </DropdownMenuItem>
+              </Link>
+              <Link href="/dashboard/settings/notifcations">
+                <DropdownMenuItem>
+                  <Bell size={18} />
+                  Notifications
+                </DropdownMenuItem>
+              </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>

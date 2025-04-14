@@ -63,7 +63,7 @@ export function SignupForm({
         // console.log(values)
         setLoading(true)
 
-        // const { data, error } = 
+        console.log(values);
         await authClient.signUp.email({
             image: "https://example.com/image.png",
             ...values
