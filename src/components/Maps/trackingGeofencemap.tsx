@@ -171,8 +171,8 @@ export default function TrackingGeofenceMap() {
     if (!isMounted) return null;
     
     // Loading states
-    if (!isLoaded) return <div>Loading maps...</div>;
-    if (isLoading) return <div>Loading location data...</div>;
+    if (!isLoaded) return <div className="w-full h-full sm:h-[400px] bg-muted rounded-md"></div>;
+    if (isLoading) return <div className="w-full h-full sm:h-[400px] bg-muted rounded-md"></div>;
 
     // Validate mapCenter before rendering
     const validMapCenter = (

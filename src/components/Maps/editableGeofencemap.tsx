@@ -22,6 +22,7 @@ export default function GeofenceMap({ onPolygonChange }: { onPolygonChange: (coo
     const [center, setCenter] = useState(defaultCenter);
     const polygonRef = useRef<google.maps.Polygon | null>(null);
     const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+    const [mapDisabled, setMapDisabled] = useState(false);
 
     // Get user's current location
     useEffect(() => {
@@ -59,7 +60,7 @@ export default function GeofenceMap({ onPolygonChange }: { onPolygonChange: (coo
                     lng: place.geometry.location.lng()
                 };
                 setCenter(newCenter);
-                
+
                 // Update polygon coordinates relative to new center
                 const offset = 0.005; // approximately 500 meters
                 const newPaths = [
@@ -80,13 +81,24 @@ export default function GeofenceMap({ onPolygonChange }: { onPolygonChange: (coo
 
     return (
         <>
-            <div className="mb-4 z-50 relative">
-                <Autocomplete className="relative z-50" onLoad={(auto) => (autocompleteRef.current = auto)} onPlaceChanged={handlePlaceSelect}>
-                    <Input type="text" placeholder="Search for a location" className="w-full p-2 border rounded" />
+            <div className="relative z-[1000]">
+                <Autocomplete
+                    onLoad={(auto) => (autocompleteRef.current = auto)}
+                    onPlaceChanged={handlePlaceSelect}
+                >
+                    <Input
+                        type="text"
+                        placeholder="Search for a location"
+                        className="w-full p-2 border rounded relative z-[1001] bg-white"
+                        onFocus={() => setMapDisabled(true)}
+                        onBlur={() => setTimeout(() => setMapDisabled(false), 300)}
+                    />
                 </Autocomplete>
             </div>
-            <div className="border rounded-sm z-10">
-                <GoogleMap mapContainerStyle={mapContainerStyle} zoom={12} center={center}>
+            <div className={`border rounded-sm z-10 ${mapDisabled ? 'pointer-events-none' : ''}`}>
+                <GoogleMap mapContainerStyle={mapContainerStyle} zoom={12} center={center} options={{
+                    gestureHandling: "cooperative"
+                }}>
                     <Polygon
                         paths={paths}
                         editable
@@ -94,6 +106,7 @@ export default function GeofenceMap({ onPolygonChange }: { onPolygonChange: (coo
                         onMouseUp={handlePolygonEdit}
                         onDragEnd={handlePolygonEdit}
                         onLoad={(polygon) => (polygonRef.current = polygon)}
+
                     />
                 </GoogleMap>
             </div>
