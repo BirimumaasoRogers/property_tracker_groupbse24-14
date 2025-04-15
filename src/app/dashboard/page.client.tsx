@@ -85,6 +85,11 @@ export default function DashboardPage() {
         }
     };
 
+    const handlePropertyCreationSuccess = (newPropertyId: string) => {
+        setSelectedProperty(newPropertyId);
+        fetchProperties(); // Refresh properties list
+    };
+
     const fetchLocationData = async (trackerId: string) => {
         console.log("Fetching location data for trackerId:", trackerId);
         const response = await fetch(`/api/locations?trackerId=${trackerId}`);
@@ -198,7 +203,7 @@ export default function DashboardPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardFooter>
-                            <PropertyRegisterForm onSuccess={fetchProperties} />
+                            <PropertyRegisterForm onSuccess={handlePropertyCreationSuccess} />
                         </CardFooter>
                     </Card>
                     <Card className="w-full sm:col-span-2">
@@ -214,7 +219,7 @@ export default function DashboardPage() {
                                     <SelectContent>
                                         {properties.map((property: any) => (
                                             <SelectItem key={property._id} value={property._id}>
-                                                {property.name}
+                                                {!property ? "Select Property" : property.name}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
