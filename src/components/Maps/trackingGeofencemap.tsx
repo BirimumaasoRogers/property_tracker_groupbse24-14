@@ -11,12 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
 
-const DUMMY_GEOFENCE = [
-    { lat: 0.349, lng: 32.584 },
-    { lat: 0.349, lng: 32.581 },
-    { lat: 0.346, lng: 32.581 },
-    { lat: 0.346, lng: 32.584 },
-];
+// const DUMMY_GEOFENCE = [
+//     { lat: 0.349, lng: 32.584 },
+//     { lat: 0.349, lng: 32.581 },
+//     { lat: 0.346, lng: 32.581 },
+//     { lat: 0.346, lng: 32.584 },
+// ];
 
 const defaultCenter = { lat: 0.3314595942674423, lng: 32.57059696041971 };
 
@@ -72,7 +72,7 @@ export default function TrackingGeofenceMap({ pingItem }: { pingItem: boolean })
                 console.log("Processed path coordinates:", pathCoordinates);
                 
                 // Filter pathCoordinates to start from when the item leaves the geofence
-                const geofenceCoordinates = paths.length > 0 ? paths : DUMMY_GEOFENCE;
+                const geofenceCoordinates = paths;
                 const startIndex = pathCoordinates.findIndex((coord: any) => {
                     const point = new google.maps.LatLng(coord.lat, coord.lng);
                     const polygon = new google.maps.Polygon({ paths: geofenceCoordinates });
@@ -162,12 +162,10 @@ export default function TrackingGeofenceMap({ pingItem }: { pingItem: boolean })
                     }));
                     setPaths(geofenceCoordinates);
                     checkIfItemOutsideGeofence(itemLocation, geofenceCoordinates);
-                } else {
-                    setPaths(DUMMY_GEOFENCE);
                 }
             } catch (err) {
                 console.error("Error fetching geofence:", err);
-                setPaths(DUMMY_GEOFENCE);
+              
             }
         };
 
@@ -306,13 +304,25 @@ export default function TrackingGeofenceMap({ pingItem }: { pingItem: boolean })
                     
                     {pathHistory.length > 0 && chaseMode && (
                         <Polyline
-                            path={pathHistory}
-                            options={{
-                                strokeColor: "blue",
-                                strokeOpacity: 0.8,
-                                strokeWeight: 2,
-                            }}
-                        />
+                        path={pathHistory}
+                        options={{
+                          strokeOpacity: 0, // keep at 0 to hide base line if using only icons
+                          icons: [
+                            {
+                              icon: {
+                                path: "M 0,-1 0,1", // small vertical dash
+                                strokeOpacity: 1,
+                                scale: 2,
+                                strokeColor: "#4A90E2",
+                              },
+                              offset: "0",
+                              repeat: "10px", // spacing between dashes
+                            },
+                          ],
+                          strokeWeight: 2,
+                        }}
+                      />
+                      
                     )}
                 </GoogleMap>
             </div>
