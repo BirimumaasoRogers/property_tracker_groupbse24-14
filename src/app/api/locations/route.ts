@@ -63,7 +63,7 @@ export async function GET(req: Request) {
         
         const url = new URL(req.url);
         const trackerId = url.searchParams.get("trackerId");
-        // console.log("🔹 trackerId:", trackerId); // Log the trackerId for verification
+        console.log("🔹 trackerId:", trackerId); // Log the trackerId for verification
         
         // Also check for propertyId and find the associated trackerId if needed
         if (!trackerId) {

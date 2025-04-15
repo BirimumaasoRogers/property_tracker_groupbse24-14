@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import {
     ChevronLeft,
@@ -38,6 +38,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import ChaseModeAlert from "@/components/chase-mode-alert";
 import PropertyRegisterForm from "@/components/Forms/property-register-form";
 import TrackingGeofenceMap from "@/components/Maps/trackingGeofencemap";
 import { useRouter } from "next/navigation";
@@ -49,12 +50,19 @@ export default function DashboardPage() {
     const [properties, setProperties] = useState([]);
     const [locationData, setLocationData]: any = useState(null);
     const [propertyDetails, setPropertyDetails] = useState([]);
+    const [geofenceStatus, setGeofenceStatus] = useState("Within Bounds");
+    const [pingItem, setPingItem] = useState(false); // Ensure pingItem is a boolean state
+    const [showChaseModeAlert, setShowChaseModeAlert] = useState(false);
+    const [pathHistory, setPathHistory] = useState<{ lat: number; lng: number }[]>([]);
     const [selectedProperty, setSelectedProperty] = useQueryState("propertyId", {
         defaultValue: "",
     });
     const [trackerId, setTrackerId] = useQueryState("trackerId", {
         defaultValue: "",
-    }); // New state for tracker ID
+    });
+    const [chaseMode, setChaseMode] = useQueryState("chaseMode", {
+        defaultValue: "false",
+    });
 
     const selectedPropertyDetails: any = propertyDetails.find(
         (property: any) => property._id === selectedProperty
@@ -68,61 +76,99 @@ export default function DashboardPage() {
     const fetchProperties = async () => {
         const response = await fetch("/api/properties");
         const data = await response.json();
-        // console.log("PROPERTIES", data); // Log the propertie
         if (data.success) {
             setProperties(data.data);
             if (!selectedProperty) {
                 setSelectedProperty(data.data[0]?._id);
-                setTrackerId(data.data[0]?.trackerId); // Set tracker ID
+                setTrackerId(data.data[0]?.trackerId);
             }
         }
     };
 
-    const fetchLocationData = async (trackerId: any) => {
+    const fetchLocationData = async (trackerId: string) => {
         console.log("Fetching location data for trackerId:", trackerId);
-        const response = await fetch(`/api/locations?trackerId=${trackerId}`); // Use trackerId
+        const response = await fetch(`/api/locations?trackerId=${trackerId}`);
         const data = await response.json();
-        console.log("Location Data:", data);
+        console.log("Location data:", data);
         if (data.success) {
             setLocationData(data.data);
             fetchPropertyDetails(selectedProperty);
         }
     };
-    // console.log('TRACKER ID', trackerId);
-    // console.log('LOCATION DATA: ', locationData)
 
-    const fetchPropertyDetails = async (propertyId: any) => {
+    const fetchPropertyDetails = async (propertyId: string) => {
         const response = await fetch(`/api/properties?propertyId=${propertyId}`);
         const data = await response.json();
-        console.log("Property Details:", data);
         if (data.success) {
             setPropertyDetails(data.data);
             const property = data.data.find((prop: any) => prop._id === propertyId);
             if (property) {
-                setTrackerId(property.trackerId); // Update tracker ID
+                setTrackerId(property.trackerId);
             }
         }
     };
 
-    useEffect(() => {
-        if (trackerId) {
-            fetchLocationData(trackerId);
-        }
-    }, [trackerId]);
+    
 
     useEffect(() => {
-        if (selectedProperty) {
-            fetchLocationData(selectedProperty);
+        if (trackerId && selectedProperty) {
+            fetchLocationData(trackerId);
         }
-    }, [selectedProperty]);
+    }, [trackerId, selectedProperty]);
+
+    const checkIfItemWithinBounds = (
+        location: { lat: number; lng: number },
+        polygonPath: { lat: number; lng: number }[]
+    ) => {
+        if (typeof window !== "undefined" && google.maps?.geometry) {
+            const polygon = new google.maps.Polygon({ paths: polygonPath });
+            const point = new google.maps.LatLng(location.lat, location.lng);
+            const isWithinBounds = google.maps.geometry.poly.containsLocation(point, polygon);
+
+            setGeofenceStatus(isWithinBounds ? "Within Bounds" : "Out of Bounds");
+            if (!isWithinBounds) {
+                setShowChaseModeAlert(true);
+            }
+        }
+    };
+
+    const handlePing = () => {
+        setPingItem(true);
+        setTimeout(() => setPingItem(false), 1500); // Reset pingItem after animation duration
+    };
+
+    const handlePopupConfirm = () => {
+        setShowChaseModeAlert(false);
+        // Activate chase mode
+        if (trackerId && selectedProperty) {
+            setChaseMode("true").then(() => {
+                // Optionally refresh the page or component to trigger the chase mode view
+                router.refresh();
+            });
+        }
+    };
+
+    const handlePopupCancel = () => {
+        setShowChaseModeAlert(false);
+    };
+
+    useEffect(() => {
+        if (locationData && locationData.length > 0 && selectedPropertyDetails?.geofence) {
+            const location = {
+                lat: parseFloat(locationData[0].latitude),
+                lng: parseFloat(locationData[0].longitude),
+            };
+            checkIfItemWithinBounds(location, selectedPropertyDetails.geofence);
+        }
+    }, [locationData, selectedPropertyDetails]);
 
     function formatDate(dateString: string | undefined) {
         if (!dateString) {
-            return "Invalid Date"; // Fallback for undefined or null date strings
+            return "Invalid Date";
         }
         const date = new Date(dateString);
         if (isNaN(date.getTime())) {
-            return "Invalid Date"; // Fallback for invalid date formats
+            return "Invalid Date";
         }
         return new Intl.DateTimeFormat('en-US', {
             year: 'numeric',
@@ -140,6 +186,7 @@ export default function DashboardPage() {
     return (
 
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
+            {showChaseModeAlert && <ChaseModeAlert open={showChaseModeAlert} onConfirm={handlePopupConfirm} onCancel={handlePopupCancel} />}
             <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
                 <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
                     <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
@@ -151,7 +198,7 @@ export default function DashboardPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardFooter>
-                            <PropertyRegisterForm onSuccess={fetchProperties}  />
+                            <PropertyRegisterForm onSuccess={fetchProperties} />
                         </CardFooter>
                     </Card>
                     <Card className="w-full sm:col-span-2">
@@ -186,8 +233,8 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex flex-col gap-4">
                     <h2 className="text-lg font-semibold">Live Tracking</h2>
-                    <div className="border border-gray-300 rounded-lg overflow-hidden shadow-sm">
-                        <TrackingGeofenceMap />
+                    <div className="overflow-hidden shadow-sm">
+                        <TrackingGeofenceMap pingItem={pingItem} /> {/* Pass pingItem as a prop */}
                     </div>
                 </div>
             </div>
@@ -205,12 +252,12 @@ export default function DashboardPage() {
                                 )}
                             </CardTitle>
                         </div>
-                        <div className=" flex items-center gap-1">
+                        <div className="flex items-center gap-1">
                             {selectedPropertyDetails ? (
-                                <Button size="sm" variant="outline" className="h-8 gap-1">
+                                <Button size="sm" variant="outline" className="h-8 gap-1" onClick={handlePing}>
                                     <LocateFixed className="h-3.5 w-3.5" />
                                     <span className="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
-                                        Track {selectedPropertyDetails.name} {/* Dynamic tracking */}
+                                        Ping {selectedPropertyDetails.name} {/* Dynamic ping */}
                                     </span>
                                 </Button>
                             ) : null}
@@ -252,7 +299,7 @@ export default function DashboardPage() {
                                         <li className="flex items-center justify-between">
                                             <span className="text-muted-foreground">Coordinates</span>
                                             <span>
-                                                {locationData?.[0]?.coordinates?.lat ?? "N/A"}, {locationData?.[0]?.coordinates?.lng ?? "N/A"}
+                                                {locationData?.[0]?.latitude ?? "N/A"}, {locationData?.[0]?.longitude ?? "N/A"}
                                             </span>
                                         </li>
                                         <li className="flex items-center justify-between">
@@ -269,11 +316,13 @@ export default function DashboardPage() {
                                     <dl className="grid gap-3">
                                         <div className="flex items-center justify-between">
                                             <dt className="text-muted-foreground">Property Status</dt>
-                                            <dd>Within Bounds</dd>
+                                            <dd className={`px-2 py-1 rounded-full ${geofenceStatus === "Within Bounds" ? "bg-green-200" : "bg-red-200"}`}>
+                                                {geofenceStatus}
+                                            </dd>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <dt className="text-muted-foreground">GPS Status</dt>
-                                            <dd>Active</dd>
+                                            <dd className="px-2 py-1 rounded-full bg-green-200">Active</dd>
                                         </div>
                                     </dl>
                                 </div>
