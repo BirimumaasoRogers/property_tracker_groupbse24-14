@@ -26,7 +26,7 @@ export default function ChaseModeAlert({ open, onConfirm, onCancel }: ChaseModeA
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>Yes, it's me</AlertDialogCancel>
+          <AlertDialogCancel onClick={onCancel}>Yes, it&rsquo;s me</AlertDialogCancel>
           <AlertDialogAction className="bg-destructive hover:bg-red-600" onClick={onConfirm}>No, activate Chase Mode</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
