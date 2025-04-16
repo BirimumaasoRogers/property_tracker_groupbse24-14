@@ -162,7 +162,7 @@ const columns: ColumnDef<Item>[] = [
       const status = row.getValue("gpsTagStatus");
       if (status === "--") {
         return (
-          <Badge className="bg-yellow-200 text-yellow-900">
+          <Badge className="bg-yellow-200 px-2 py-1 text-yellow-900">
             <div className="flex items-center gap-1">
               <span>Pending</span>
               <span className="animate-ping text-yellow-900">.</span>
@@ -194,8 +194,8 @@ const columns: ColumnDef<Item>[] = [
       const status = row.getValue("insideGeofence");
       if (status === "--") {
         return (
-          <Badge className="bg-yellow-200 text-yellow-900">
-            <div className="flex items-center gap-1">
+          <Badge className="bg-yellow-200 px-2 py-1 text-yellow-900">
+            <div className="flex items-center justify-center gap-1">
               <span>Pending</span>
               <span className="animate-ping text-yellow-900">.</span>
               <span className="animate-ping text-yellow-900 delay-100">.</span>
@@ -208,7 +208,7 @@ const columns: ColumnDef<Item>[] = [
         <Badge
           className={cn(
             status === "Out of Bounds"
-              ? "bg-red-200 text-red-900"
+              ? "bg-red-200 px-2 py-1 text-red-900"
               : "bg-green-200 text-green-900"
           )}
         >
@@ -236,7 +236,7 @@ const columns: ColumnDef<Item>[] = [
         );
       }
       return (
-        <span className="text-gray-800 animate-fade-in font-mono text-sm">
+        <span className="text-gray-800 animate-fade-in text-sm">
           {coords}
         </span>
       );
