@@ -42,7 +42,7 @@ const formSchema = z.object({
     ).min(3, "Please draw a valid polygon with at least 3 points")
 });
 
-export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: () => void }) {
+export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPropertyId: string) => void }) {
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const router = useRouter();
@@ -81,9 +81,7 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: () => 
             setOpen(false);
             form.reset();
             if (onSuccess) {
-                onSuccess(); // Useful if you're using SWR or React Query
-            } else {
-                router.refresh(); // Default fallback
+                onSuccess(result.data._id); // Pass the new property ID
             }
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Failed to create property');
