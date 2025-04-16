@@ -180,7 +180,7 @@ const columns: ColumnDef<Item>[] = [
               : "bg-green-200 text-green-900"
           )}
         >
-          {status}
+          {status as string}
         </Badge>
       );
     },
@@ -212,7 +212,7 @@ const columns: ColumnDef<Item>[] = [
               : "bg-green-200 text-green-900"
           )}
         >
-          {status}
+          {status as string}
         </Badge>
       );
     },
