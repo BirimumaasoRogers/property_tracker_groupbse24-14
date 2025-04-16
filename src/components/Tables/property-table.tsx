@@ -79,6 +79,25 @@ import {
 } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
+
+function isPointInPolygon(point: { lat: number; lng: number }, polygon: { lat: number; lng: number }[]): boolean {
+  let inside = false;
+  const x = point.lat;
+  const y = point.lng;
+
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const xi = polygon[i].lat, yi = polygon[i].lng;
+    const xj = polygon[j].lat, yj = polygon[j].lng;
+
+    const intersect = ((yi > y) !== (yj > y)) &&
+      (x < (xj - xi) * (y - yi) / ((yj - yi) + Number.EPSILON) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+
+
 type Item = {
   id: string;
   name: string;
@@ -135,32 +154,93 @@ const columns: ColumnDef<Item>[] = [
     filterFn: multiColumnFilterFn,
     enableHiding: false,
   },
-  {
+   // ✅ Enhanced GPS Tag Status column with pulsing dots and pending effect
+   {
     header: "GPS Tag Status",
-    accessorKey: "gpsTagStatus", // Changed from "status"
-    cell: ({ row }) => (
-      <Badge className={cn(row.getValue("gpsTagStatus") === "Inactive" && "bg-muted-foreground/60 text-primary-foreground")}>
-        {row.getValue("gpsTagStatus")}
-      </Badge>
-    ),
-    size: 100,
-    filterFn: statusFilterFn,
-  },
-  {
-    header: "Inside Geofence",
-    accessorKey: "insideGeofence", // Changed from "status"
-    cell: ({ row }) => (
-      <Badge className={cn(row.getValue("insideGeofence") === "No" ? "bg-red-500 text-white" : "bg-green-500 text-white")}>
-        {row.getValue("insideGeofence")}
-      </Badge>
-    ),
+    accessorKey: "gpsTagStatus",
+    cell: ({ row }) => {
+      const status = row.getValue("gpsTagStatus");
+      if (status === "--") {
+        return (
+          <Badge className="bg-yellow-200 text-yellow-900">
+            <div className="flex items-center gap-1">
+              <span>Pending</span>
+              <span className="animate-ping text-yellow-900">.</span>
+              <span className="animate-ping text-yellow-900 delay-100">.</span>
+              <span className="animate-ping text-yellow-900 delay-200">.</span>
+            </div>
+          </Badge>
+        );
+      }
+      return (
+        <Badge
+          className={cn(
+            status === "Inactive"
+              ? "bg-red-200 text-red-900"
+              : "bg-green-200 text-green-900"
+          )}
+        >
+          {status}
+        </Badge>
+      );
+    },
     size: 120,
   },
 
   {
+    header: "Inside Geofence",
+    accessorKey: "insideGeofence",
+    cell: ({ row }) => {
+      const status = row.getValue("insideGeofence");
+      if (status === "--") {
+        return (
+          <Badge className="bg-yellow-200 text-yellow-900">
+            <div className="flex items-center gap-1">
+              <span>Pending</span>
+              <span className="animate-ping text-yellow-900">.</span>
+              <span className="animate-ping text-yellow-900 delay-100">.</span>
+              <span className="animate-ping text-yellow-900 delay-200">.</span>
+            </div>
+          </Badge>
+        );
+      }
+      return (
+        <Badge
+          className={cn(
+            status === "Out of Bounds"
+              ? "bg-red-200 text-red-900"
+              : "bg-green-200 text-green-900"
+          )}
+        >
+          {status}
+        </Badge>
+      );
+    },
+    size: 140,
+  },
+
+   // ✅ Creative GPS Coordinates column with pulsing dots placeholder
+   {
     header: "GPS Coordinates",
     accessorKey: "geofenceCoordinates",
-      cell: ({ row }) => <span>{row.original.geofenceCoordinates}</span>,
+    cell: ({ row }) => {
+      const coords = row.original.geofenceCoordinates;
+      if (coords === "--") {
+        return (
+          <span className="text-yellow-700 italic flex gap-1">
+            <span>Pending</span>
+            <span className="animate-ping text-yellow-900">.</span>
+            <span className="animate-ping text-yellow-900 delay-100">.</span>
+            <span className="animate-ping text-yellow-900 delay-200">.</span>
+          </span>
+        );
+      }
+      return (
+        <span className="text-gray-800 animate-fade-in font-mono text-sm">
+          {coords}
+        </span>
+      );
+    },
     size: 200,
   },
   
@@ -263,29 +343,52 @@ export default function PropertyTable() {
       const enrichedData = await Promise.all(
         rawProperties.map(async (property) => {
           try {
-            const res = await fetch(`/api/locations?trackerId=${property.trackerId}`);
-            const result = await res.json();
+            const [locationRes, geofenceRes] = await Promise.all([
+              fetch(`/api/locations?trackerId=${property.trackerId}`),
+              fetch(`/api/properties/${property.trackerId}`),
+            ]);
   
-            console.log("📦 Location API Result for", property.trackerId, result); // <-- 👀 add this!
+            const locationData = await locationRes.json();
+            const geofenceData = await geofenceRes.json();
   
-            if (result.success && result.data.length > 0) {
-              const { latitude, longitude } = result.data[0] ?? {};
-              return {
-                ...property,
-                geofenceCoordinates: `${latitude}, ${longitude}`,
-              };
-            } else {
-              return { ...property, geofenceCoordinates: "--" };
+            let coordinates = "--";
+            let insideGeofence = "--";
+  
+            if (
+              locationData.success &&
+              locationData.data?.length > 0 &&
+              geofenceData.success &&
+              geofenceData.data?.geofence?.length > 0
+            ) {
+              const { latitude, longitude } = locationData.data[0];
+              coordinates = `${latitude}, ${longitude}`;
+              const point = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
+              const polygon = geofenceData.data.geofence.map((p: any) => ({
+                lat: parseFloat(p.lat),
+                lng: parseFloat(p.lng),
+              }));
+  
+              insideGeofence = isPointInPolygon(point, polygon) ? "Within Bounds" : "Out of Bounds";
             }
+  
+            return {
+              ...property,
+              geofenceCoordinates: coordinates,
+              insideGeofence,
+            };
           } catch (err) {
-            console.error("❌ Failed to fetch geofence for", property.trackerId, err);
-            return { ...property, geofenceCoordinates: "--" };
+            console.error("❌ Failed to fetch geofence/location for", property.trackerId, err);
+            return {
+              ...property,
+              geofenceCoordinates: "--",
+              insideGeofence: "--",
+            };
           }
         })
       );
   
       setData(enrichedData);
-      console.log("📍 Enriched Data:", enrichedData);
+      console.log("📍 Enriched Property Table Data:", enrichedData);
     }
   
     if (rawProperties.length > 0) {
