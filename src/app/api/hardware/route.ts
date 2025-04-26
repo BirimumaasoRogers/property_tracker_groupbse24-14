@@ -46,6 +46,7 @@ export async function GET(req: Request) {
             data: {
                 name: property.data.name,
                 phone: property.data.phone,
+                geofence: property.data.geofence
             }
         };
 

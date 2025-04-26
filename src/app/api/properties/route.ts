@@ -23,7 +23,7 @@ export async function GET(req: Request) {
 
             return NextResponse.json({ 
                 success: true, 
-                data: { name: property.name, phone: property.phone } 
+                data: { name: property.name, phone: property.phone, geofence: property.geofence } 
             });
         }
 
