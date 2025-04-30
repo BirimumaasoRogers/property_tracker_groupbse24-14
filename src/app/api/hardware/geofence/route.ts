@@ -43,8 +43,9 @@ export async function GET(req: Request) {
         const response = {
             success: true,
             data: {
-                name: property.data.name,
-                phone: property.data.phone,
+                geofence: property.data.geofence.map(
+                    ({ lat, lng }: any) => ({ lat, lng })
+                ),
             }
         };
 
