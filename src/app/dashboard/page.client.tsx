@@ -125,10 +125,14 @@ export default function DashboardPage() {
         location: { lat: number; lng: number },
         polygonPath: { lat: number; lng: number }[]
     ) => {
-        if (typeof window !== "undefined" && google.maps?.geometry) {
-            const polygon = new google.maps.Polygon({ paths: polygonPath });
-            const point = new google.maps.LatLng(location.lat, location.lng);
-            const isWithinBounds = google.maps.geometry.poly.containsLocation(point, polygon);
+        if (
+            typeof window !== "undefined" &&
+            typeof window.google !== "undefined" &&
+            window.google.maps?.geometry
+        ) {
+            const polygon = new window.google.maps.Polygon({ paths: polygonPath });
+            const point = new window.google.maps.LatLng(location.lat, location.lng);
+            const isWithinBounds = window.google.maps.geometry.poly.containsLocation(point, polygon);
 
             setGeofenceStatus(isWithinBounds ? "Within Bounds" : "Out of Bounds");
             if (!isWithinBounds) {

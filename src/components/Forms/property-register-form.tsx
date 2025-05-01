@@ -32,7 +32,10 @@ import { Textarea } from "../ui/textarea";
 const formSchema = z.object({
     name: z.string().min(2, { message: "Name should have more than 2 characters" }),
     description: z.string().min(2, { message: "Description should have more than 2 characters" }),
-    trackerId: z.string().min(2, { message: "Input a valid Tracker ID" }),
+    trackerId: z
+        .string()
+        .min(2, { message: "Input a valid Tracker ID" })
+        .regex(/^TRK/, { message: "Tracker ID must start with 'TRK'" }),
     phone: z.string().min(10, { message: "Phone number should be 10 digits or more" }),
     geofence: z.array(
         z.object({
@@ -58,9 +61,20 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
         },
     });
 
-    // 2. Define a submit handler.
+    // Submit Handler.
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log("PROPERTY FORM VALUES", values);
+        // Format phone number to include +256 if not present
+        let formattedPhone = values.phone.trim();
+        if (!formattedPhone.startsWith("+")) {
+            // Remove leading zero if present
+            if (formattedPhone.startsWith("0")) {
+                formattedPhone = formattedPhone.substring(1);
+            }
+            formattedPhone = "+256" + formattedPhone;
+        }
+        const submitValues = { ...values, phone: formattedPhone };
+
+        console.log("PROPERTY FORM VALUES", submitValues);
         try {
             setLoading(true);
             const response = await fetch('/api/properties', {
@@ -68,7 +82,7 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(values),
+                body: JSON.stringify(submitValues),
             });
 
             const result = await response.json();
@@ -117,7 +131,17 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Input type="text" placeholder="Property Name" {...field} />
+                                                        <Input 
+                                                            type="text" 
+                                                            placeholder="Property Name" 
+                                                            {...field}
+                                                            onChange={
+                                                                (e) => {
+                                                                    field.onChange(e)
+                                                                    form.trigger("name")
+                                                                }
+                                                            }
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -133,7 +157,16 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Textarea placeholder="Property Description" {...field} />
+                                                        <Textarea 
+                                                            placeholder="Property Description" 
+                                                            {...field} 
+                                                            onChange={
+                                                                (e) => {
+                                                                    field.onChange(e)
+                                                                    form.trigger("description")
+                                                                }
+                                                            }
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -149,7 +182,17 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Input type="text" placeholder="Tracker ID" {...field} />
+                                                        <Input 
+                                                            type="text" 
+                                                            placeholder="Tracker ID" 
+                                                            {...field} 
+                                                            onChange={
+                                                                (e) => {
+                                                                    field.onChange(e)
+                                                                    form.trigger("trackerId")
+                                                                }
+                                                            }
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -167,7 +210,17 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
                                                     <Label className="text-sm text-gray-500">Phone Number you want to receive notifications:</Label>
                                                     <FormItem>
                                                         <FormControl>
-                                                            <Input type="tel" placeholder="+1234567890" {...field} />
+                                                            <Input 
+                                                                type="tel" 
+                                                                placeholder="+1234567890" 
+                                                                {...field} 
+                                                                onChange={
+                                                                    (e) => {
+                                                                        field.onChange(e)
+                                                                        form.trigger("phone")
+                                                                    }
+                                                                }    
+                                                            />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>

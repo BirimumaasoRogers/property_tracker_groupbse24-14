@@ -18,15 +18,18 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ClipLoader } from "react-spinners"
 import { useState } from "react"
+import { EyeIcon, EyeOffIcon } from "lucide-react"
 
 const formSchema = z
     .object({
         name: z.string().min(1, {
             message: "Name must be longer than one character.",
         }),
-        email: z.string().email({
-            message: "Please enter a valid email address.",
-        }),
+        email: z.string()
+            .email({
+                message: "Please enter a valid email address.",
+            })
+            .max(64, { message: "Email must be 64 characters or less." }),
         password: z.string().min(8, {
             message: "Password must be 8 characters or more.",
         }),
@@ -44,6 +47,10 @@ export function SignupForm({
     className,
     ...props
 }: React.ComponentPropsWithoutRef<"form">) {
+    const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false)
+    const [isConfirmPasswordVisible, setIsConfirmedPasswordVisible] = useState<boolean>(false)
+    const togglePasswordVisibility = () => setIsPasswordVisible((prevState) => !prevState)
+    const toggleConfirmPasswordVisibility = () => setIsConfirmedPasswordVisible((prevState) => !prevState)
     // Define form
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -128,7 +135,31 @@ export function SignupForm({
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>
-                                    <Input placeholder="Password" {...field} />
+                                    <div className="*:not-first:mt-2">
+                                        <div className="relative">
+                                            <Input
+                                                id={'password'}
+                                                className="pe-9"
+                                                placeholder="Password"
+                                                type={isPasswordVisible ? "text" : "password"}
+                                                {...field}
+                                            />
+                                            <button
+                                                className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                                                type="button"
+                                                onClick={togglePasswordVisibility}
+                                                aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+                                                aria-pressed={isPasswordVisible}
+                                                aria-controls="password"
+                                            >
+                                                {isPasswordVisible ? (
+                                                    <EyeOffIcon size={16} aria-hidden="true" />
+                                                ) : (
+                                                    <EyeIcon size={16} aria-hidden="true" />
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -140,7 +171,31 @@ export function SignupForm({
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>
-                                    <Input placeholder="Confirm Password" {...field} />
+                                <div className="*:not-first:mt-2">
+                                        <div className="relative">
+                                            <Input
+                                                id={'confirm-password'}
+                                                className="pe-9"
+                                                placeholder="Confirm Password"
+                                                type={isConfirmPasswordVisible ? "text" : "password"}
+                                                {...field}
+                                            />
+                                            <button
+                                                className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                                                type="button"
+                                                onClick={toggleConfirmPasswordVisibility}
+                                                aria-label={isConfirmPasswordVisible ? "Hide password" : "Show password"}
+                                                aria-pressed={isConfirmPasswordVisible}
+                                                aria-controls="password"
+                                            >
+                                                {isConfirmPasswordVisible ? (
+                                                    <EyeOffIcon size={16} aria-hidden="true" />
+                                                ) : (
+                                                    <EyeIcon size={16} aria-hidden="true" />
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
