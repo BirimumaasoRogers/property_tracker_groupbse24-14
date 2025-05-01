@@ -8,13 +8,13 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
-        <div className="relative hidden bg-muted lg:block">
+        <div className="relative hidden bg-[#f6fff9] lg:flex">
         <Image
-          src="/images/placeholder.svg"
+          src="/images/login-cover.svg"
           width={0}
           height={0}
           alt="Image"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          className="absolute inset-0 h-[800px] w-[800px] self-center mx-auto object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>
       <div className="flex flex-col gap-4 p-6 md:p-10">

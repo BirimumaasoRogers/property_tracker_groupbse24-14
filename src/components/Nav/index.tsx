@@ -5,15 +5,19 @@ import { Separator } from "../ui/separator";
 import { SidebarTrigger } from "../ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { useEffect } from "react";
+import { usePathname } from "next/navigation"; // Import usePathname
+import Link from "next/link"; // Import Link for BreadcrumbLink
+
+// Helper function to capitalize strings
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export const Nav = () => {
     const {
         data: session,
-        // isPending, //loading state
-        // error, //error state
         refetch,
-        // refetch //refetch the session
     } = authClient.useSession()
+
+    const pathname = usePathname(); // Get the current pathname
 
     useEffect(() => {
         if (!session) {
@@ -21,6 +25,55 @@ export const Nav = () => {
         }
     }, [session, refetch]);
 
+    // Generate breadcrumbs based on the pathname
+    const generateBreadcrumbs = () => {
+        const pathSegments = pathname.split('/').filter(segment => segment); // Split and remove empty segments
+        const breadcrumbs = [
+            <BreadcrumbItem key="home">
+                <BreadcrumbLink asChild>
+                     <Link href="/dashboard">Dashboard</Link>
+                </BreadcrumbLink>
+            </BreadcrumbItem>
+        ];
+
+        let currentPath = '/dashboard'; // Start building path from dashboard
+
+        pathSegments.forEach((segment, index) => {
+            // Skip the root 'dashboard' segment if it's the first one after splitting
+            if (index === 0 && segment.toLowerCase() === 'dashboard') {
+                return;
+            }
+
+            // Build the path, but handle the 'settings' case for the link href
+            const segmentPath = `${currentPath}/${segment}`;
+            const isLast = index === pathSegments.length - 1;
+            const linkHref = segment.toLowerCase() === 'settings' ? '/dashboard' : segmentPath; // Use '/dashboard' if segment is 'settings'
+
+            breadcrumbs.push(
+                <BreadcrumbSeparator key={`sep-${index}`} />
+            );
+            breadcrumbs.push(
+                <BreadcrumbItem key={segment}>
+                    {isLast ? (
+                        // If it's the last segment, always display as page title, even if it's 'settings'
+                        <BreadcrumbPage>{capitalize(segment)}</BreadcrumbPage>
+                    ) : (
+                        // Otherwise, create a link using the determined href
+                        <BreadcrumbLink asChild>
+                             <Link href={linkHref}>{capitalize(segment)}</Link>
+                        </BreadcrumbLink>
+                    )}
+                </BreadcrumbItem>
+            );
+
+            // Update currentPath for the next iteration *unless* it was 'settings'
+            if (segment.toLowerCase() !== 'settings') {
+                 currentPath = segmentPath;
+            }
+        });
+
+        return breadcrumbs;
+    };
 
 
     return (
@@ -30,15 +83,7 @@ export const Nav = () => {
                 <Separator orientation="vertical" className="mr-2 h-4" />
                 <Breadcrumb>
                     <BreadcrumbList>
-                        <BreadcrumbItem className="hidden md:block">
-                            <BreadcrumbLink href="/dashboard">
-                                Dashboard
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator className="hidden md:block" />
-                        <BreadcrumbItem>
-                            <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                        </BreadcrumbItem>
+                        {generateBreadcrumbs()} {/* Render dynamic breadcrumbs */}
                     </BreadcrumbList>
                 </Breadcrumb>
             </div>

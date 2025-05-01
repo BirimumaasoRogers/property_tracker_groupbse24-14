@@ -279,8 +279,6 @@ export default function DashboardPage() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem>Edit Property</DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem>Delete Property</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
@@ -352,22 +350,6 @@ export default function DashboardPage() {
                         <div className="text-xs text-muted-foreground">
                             Updated <time dateTime={selectedPropertyDetails?.updatedAt}>{formatDate(selectedPropertyDetails?.updatedAt)}</time> {/* Display updatedAt */}
                         </div>
-                        <Pagination className="ml-auto mr-0 w-auto">
-                            <PaginationContent>
-                                <PaginationItem>
-                                    <Button size="icon" variant="outline" className="h-6 w-6">
-                                        <ChevronLeft className="h-3.5 w-3.5" />
-                                        <span className="sr-only">Previous Order</span>
-                                    </Button>
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <Button size="icon" variant="outline" className="h-6 w-6">
-                                        <ChevronRight className="h-3.5 w-3.5" />
-                                        <span className="sr-only">Next Order</span>
-                                    </Button>
-                                </PaginationItem>
-                            </PaginationContent>
-                        </Pagination>
                     </CardFooter>
                 </Card>
             </div>

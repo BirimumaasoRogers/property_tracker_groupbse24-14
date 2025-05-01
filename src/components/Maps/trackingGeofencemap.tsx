@@ -35,7 +35,7 @@ export default function TrackingGeofenceMap({ pingItem }: { pingItem: boolean })
 
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-        libraries: ["places", "geometry"],
+        libraries: ["places", "geometry"], // Ensure 'geometry' library is loaded
     });
 
     const [itemLocation, setItemLocation] = useState(defaultCenter);
@@ -113,10 +113,14 @@ export default function TrackingGeofenceMap({ pingItem }: { pingItem: boolean })
         location: { lat: number; lng: number },
         polygonPath: { lat: number; lng: number }[]
     ) => {
-        if (typeof window !== "undefined" && google.maps?.geometry) {
+        // No need to check isLoaded here anymore, as the useEffect handles it
+        if (typeof window !== "undefined" && google?.maps?.geometry) { // Added optional chaining for google as well for safety
             const polygon = new google.maps.Polygon({ paths: polygonPath });
             const point = new google.maps.LatLng(location.lat, location.lng);
-            const isOutside = !google.maps.geometry.poly.containsLocation(point, polygon);
+            const isOutside = !google.maps.geometry.poly.containsLocation(
+                point,
+                polygon
+            );
 
             if (isOutside) {
                 setGeofenceColor("red");
@@ -124,7 +128,10 @@ export default function TrackingGeofenceMap({ pingItem }: { pingItem: boolean })
                     await fetch("/api/geofence-alert", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: "Item is out of bounds", location }),
+                        body: JSON.stringify({
+                            message: "Item is out of bounds",
+                            location,
+                        }),
                     });
                 } catch (err) {
                     console.error("Alert send failed:", err);
@@ -132,6 +139,8 @@ export default function TrackingGeofenceMap({ pingItem }: { pingItem: boolean })
             } else {
                 setGeofenceColor("green");
             }
+        } else {
+             console.warn("Google Maps Geometry library not loaded yet.");
         }
     };
 
@@ -213,11 +222,12 @@ export default function TrackingGeofenceMap({ pingItem }: { pingItem: boolean })
         if (paths.length > 0 && itemLocation) {
             checkIfItemOutsideGeofence(itemLocation, paths);
         }
-    }, [itemLocation, paths]);
+        // Add isLoaded to the dependency array
+    }, [itemLocation, paths, isLoaded]);
 
     if (!isMounted) return null;
-    if (!isLoaded) return <div className="w-full h-full sm:h-[400px] bg-muted rounded-md"></div>;
-    if (isLoading) return <div className="w-full h-full sm:h-[400px] bg-muted rounded-md"></div>;
+    if (!isLoaded) return <div className="w-full h-full sm:h-[400px] bg-muted rounded-md flex items-center justify-center">Loading Map...</div>; // Indicate loading
+    if (isLoading) return <div className="w-full h-full sm:h-[400px] bg-muted rounded-md flex items-center justify-center">Loading Location...</div>; // Indicate loading location
 
     
 
@@ -269,13 +279,13 @@ export default function TrackingGeofenceMap({ pingItem }: { pingItem: boolean })
                     onClick={toggleChaseMode}
                     variant={chaseMode ? "default" : "outline"}
                 >
-                    {chaseMode ? "Disable Chase Mode" : "Enable Chase Mode"}
+                    {chaseMode ? "Disable Tracking Mode" : "Enable Tracking Mode"}
                 </Button>
             </div>
 
             {chaseMode && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded">
-                    Chase Mode Active - Tracking path history
+                    Tracking Mode Active - Tracking path history
                 </div>
             )}
 

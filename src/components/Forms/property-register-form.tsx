@@ -36,7 +36,9 @@ const formSchema = z.object({
         .string()
         .min(2, { message: "Input a valid Tracker ID" })
         .regex(/^TRK/, { message: "Tracker ID must start with 'TRK'" }),
-    phone: z.string().min(10, { message: "Phone number should be 10 digits or more" }),
+    phone: z.string()
+        .min(10, { message: "Phone number should be at least 10 digits" }) // Adjusted min length slightly if needed for local numbers before +256
+        .regex(/^\d+$/, { message: "Phone number must contain only digits" }),
     geofence: z.array(
         z.object({
             lat: z.number(),
@@ -131,9 +133,9 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Input 
-                                                            type="text" 
-                                                            placeholder="Property Name" 
+                                                        <Input
+                                                            type="text"
+                                                            placeholder="Property Name"
                                                             {...field}
                                                             onChange={
                                                                 (e) => {
@@ -157,9 +159,9 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Textarea 
-                                                            placeholder="Property Description" 
-                                                            {...field} 
+                                                        <Textarea
+                                                            placeholder="Property Description"
+                                                            {...field}
                                                             onChange={
                                                                 (e) => {
                                                                     field.onChange(e)
@@ -182,10 +184,10 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Input 
-                                                            type="text" 
-                                                            placeholder="Tracker ID" 
-                                                            {...field} 
+                                                        <Input
+                                                            type="text"
+                                                            placeholder="Tracker ID"
+                                                            {...field}
                                                             onChange={
                                                                 (e) => {
                                                                     field.onChange(e)
@@ -210,16 +212,16 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
                                                     <Label className="text-sm text-gray-500">Phone Number you want to receive notifications:</Label>
                                                     <FormItem>
                                                         <FormControl>
-                                                            <Input 
-                                                                type="tel" 
-                                                                placeholder="+1234567890" 
-                                                                {...field} 
+                                                            <Input
+                                                                type="tel"
+                                                                placeholder="+256234567890"
+                                                                {...field}
                                                                 onChange={
                                                                     (e) => {
                                                                         field.onChange(e)
                                                                         form.trigger("phone")
                                                                     }
-                                                                }    
+                                                                }
                                                             />
                                                         </FormControl>
                                                         <FormMessage />

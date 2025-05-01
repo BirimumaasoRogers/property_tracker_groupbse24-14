@@ -51,10 +51,6 @@ const data = {
           url: "/dashboard/settings/profile",
         },
         {
-          title: "Password",
-          url: "/dashboard/settings/password",
-        },
-        {
           title: "Notifications",
           url: "/dashboard/settings/notifications",
         },
@@ -64,7 +60,7 @@ const data = {
   projects: [
     {
       name: "Dashboard",
-      url: "/dashboard",
+      url: "dashboard",
       icon: Home,
     },
     {

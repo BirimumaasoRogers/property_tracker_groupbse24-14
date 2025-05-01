@@ -37,15 +37,6 @@ export default function NotificationSettings() {
                         </div>
                         <Switch defaultChecked />
                     </div>
-                    <div className="flex items-center justify-between space-y-0">
-                        <div className="flex flex-col">
-                            <span>Weekly Summary</span>
-                            <span className="text-sm text-muted-foreground">
-                                Receive a weekly summary of your device activity.
-                            </span>
-                        </div>
-                        <Switch />
-                    </div>
                 </div>
                 <Separator />
                 <div className="space-y-4">

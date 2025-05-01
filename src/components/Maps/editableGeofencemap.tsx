@@ -110,17 +110,6 @@ export default function GeofenceMap({ onPolygonChange }: { onPolygonChange: (coo
                     />
                 </GoogleMap>
             </div>
-            <div className="mt-4">
-                <label htmlFor="coordinates" className="block text-sm font-medium text-gray-700 mb-1">
-                    Polygon Coordinates
-                </label>
-                <Input
-                    id="coordinates"
-                    value={JSON.stringify(paths)}
-                    readOnly
-                    className="w-full text-gray-400"
-                />
-            </div>
 
         </>
     );

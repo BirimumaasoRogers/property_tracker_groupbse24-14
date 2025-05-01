@@ -13,7 +13,7 @@ export default function LandingPage() {
       <LandingNav />
       <main className="flex-1 w-full">
         {/* Hero Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-[#f6fff9]">
           <div className=" px-4 md:px-12">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
               <div className="flex flex-col justify-center space-y-4">
@@ -100,7 +100,7 @@ export default function LandingPage() {
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+        <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32 bg-[#f6fff9]">
           <div className="px-4 md:px-12">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
