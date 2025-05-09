@@ -73,7 +73,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [user, setUser] = useState(data.user) // Initialize with sample data
-  console.log("SESSION USER",user)
+  console.log("SESSION USER", user)
 
   useEffect(() => {
     async function fetchUserData() {
@@ -105,6 +105,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.settings} />
       </SidebarContent>
       <SidebarFooter>
+        <div className="mb-2 w-full flex justify-center">
+          <a
+            href="/dashboard/help"
+            className="flex items-center w-full gap-2 px-4 py-2 rounded hover:bg-muted transition-colors text-sm"
+          >
+            <BookOpen size={18} />
+            <span>Help</span>
+          </a>
+        </div>
         <NavUser user={user} /> {/* Use the fetched user data */}
       </SidebarFooter>
       <SidebarRail />
