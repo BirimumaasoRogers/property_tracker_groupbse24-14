@@ -2,7 +2,7 @@
 import { Divide, Plus } from "lucide-react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
     Dialog,
@@ -47,14 +47,26 @@ const formSchema = z.object({
     ).min(3, "Please draw a valid polygon with at least 3 points")
 });
 
-export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPropertyId: string) => void }) {
+export default function PropertyRegisterForm({
+    onSuccess,
+    initialValues,
+    editMode = false,
+    open,
+    setOpen,
+}: {
+    onSuccess?: (propertyId: string) => void,
+    initialValues?: any,
+    editMode?: boolean,
+    open: boolean,
+    setOpen: (open: boolean) => void,
+}) {
     const [loading, setLoading] = useState(false);
-    const [open, setOpen] = useState(false);
     const router = useRouter();
 
+    console.log("INITIAL VALUES",initialValues);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
+        defaultValues: initialValues || {
             name: "",
             description: "",
             trackerId: "",
@@ -63,12 +75,17 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
         },
     });
 
+    // Update form values when initialValues change (for edit mode)
+    useEffect(() => {
+        if (initialValues) {
+            form.reset(initialValues);
+        }
+    }, [initialValues]);
+
     // Submit Handler.
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        // Format phone number to include +256 if not present
         let formattedPhone = values.phone.trim();
         if (!formattedPhone.startsWith("+")) {
-            // Remove leading zero if present
             if (formattedPhone.startsWith("0")) {
                 formattedPhone = formattedPhone.substring(1);
             }
@@ -76,55 +93,49 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
         }
         const submitValues = { ...values, phone: formattedPhone };
 
-        console.log("PROPERTY FORM VALUES", submitValues);
         try {
             setLoading(true);
-            const response = await fetch('/api/properties', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(submitValues),
-            });
-
+            const response = await fetch(
+                editMode && initialValues?._id
+                    ? `/api/properties/${initialValues._id}`
+                    : '/api/properties',
+                {
+                    method: editMode ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(submitValues),
+                }
+            );
             const result = await response.json();
 
             if (!result.success) {
-                throw new Error(result.error || 'Failed to create property');
+                throw new Error(result.error || (editMode ? 'Failed to update property' : 'Failed to create property'));
             }
 
-            toast.success('Property created successfully');
+            toast.success(editMode ? 'Property updated successfully' : 'Property created successfully');
             setOpen(false);
             form.reset();
             if (onSuccess) {
-                onSuccess(result.data._id); // Pass the new property ID
+                onSuccess(result.data._id);
             }
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'Failed to create property');
+            toast.error(error instanceof Error ? error.message : (editMode ? 'Failed to update property' : 'Failed to create property'));
         } finally {
             setLoading(false);
         }
     }
-
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button variant="outline" className="flex gap-2 bg-primary hover:bg-primary/90 hover:text-white/80 text-white/90">
-                    <Plus size={16} />
-                    <span>Add Property</span>
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="flex flex-col gap-0 overflow-y-visible p-0 sm:max-w-lg [&>button:last-child]:top-3.5">
+            <DialogContent className="flex flex-col gap-0 overflow-y-visible p-4 sm:max-w-lg [&>button:last-child]:top-3.5">
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
-                        <DialogHeader className="contents space-y-0 text-left">
-                            <DialogTitle className="border-b px-6 py-4 text-base">Add property</DialogTitle>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="contents w-full">
+                        <DialogHeader>
+                            <DialogTitle>{editMode ? "Edit Property" : "Add property"}</DialogTitle>
                         </DialogHeader>
                         <DialogDescription className="sr-only">
                             Register your property here to be tagged.
                         </DialogDescription>
                         <div className="overflow-y-auto">
-                            <div className="flex flex-col px-6 pt-4 pb-6 gap-4">
+                            <div className="flex flex-col mx-1 pt-4 pb-6 gap-4">
                                 <div className="flex flex-col gap-4 sm:flex-row">
                                     <div className="flex-1 space-y-2">
                                         <FormField
@@ -240,10 +251,8 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
                                                 <Label>Geofence Area</Label>
                                                 <FormControl>
                                                     <GeofenceMap
-                                                        onPolygonChange={(coords) => {
-                                                            // Parse the string to array before setting the form value
-                                                            field.onChange(JSON.parse(coords));
-                                                        }}
+                                                        onPolygonChange={(coords) => field.onChange(JSON.parse(coords))}
+                                                        initialPaths={form.watch("geofence")?.map(({ lat, lng }) => ({ lat, lng }))}
                                                     />
                                                 </FormControl>
                                                 <FormMessage />
@@ -258,7 +267,7 @@ export default function PropertyRegisterForm({ onSuccess }: { onSuccess?: (newPr
                                 Cancel
                             </Button>
                             <Button type="submit" disabled={loading}>
-                                {loading ? 'Saving...' : 'Save property'}
+                                {loading ? (editMode ? 'Updating...' : 'Saving...') : (editMode ? 'Update property' : 'Save property')}
                             </Button>
                         </DialogFooter>
                     </form>

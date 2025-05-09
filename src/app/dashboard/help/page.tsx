@@ -232,7 +232,7 @@ export default function HelpPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Can't find what you're looking for? Our support team is here to help
+                    Can&rsquo;t find what you&rsquo;re looking for? Our support team is here to help
                   </p>
                 </CardContent>
                 <CardFooter>
@@ -315,7 +315,7 @@ export default function HelpPage() {
                     <HelpCircle className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="mt-4 text-lg font-medium">No results found</h3>
                     <p className="mt-2 text-muted-foreground">
-                      We couldn't find any FAQs matching your search. Try different keywords or contact support.
+                      We couldn&rsquo;t find any FAQs matching your search. Try different keywords or contact support.
                     </p>
                     <Button className="mt-4" asChild>
                       <Link href="/contact">Contact Support</Link>
@@ -350,7 +350,7 @@ export default function HelpPage() {
                     <HelpCircle className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="mt-4 text-lg font-medium">No results found</h3>
                     <p className="mt-2 text-muted-foreground">
-                      We couldn't find any hardware FAQs matching your search. Try different keywords or contact
+                      We couldn&rsquo;t find any hardware FAQs matching your search. Try different keywords or contact
                       support.
                     </p>
                     <Button className="mt-4" asChild>
@@ -386,7 +386,7 @@ export default function HelpPage() {
                     <HelpCircle className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="mt-4 text-lg font-medium">No results found</h3>
                     <p className="mt-2 text-muted-foreground">
-                      We couldn't find any software FAQs matching your search. Try different keywords or contact
+                      We couldn&rsquo;t find any software FAQs matching your search. Try different keywords or contact
                       support.
                     </p>
                     <Button className="mt-4" asChild>

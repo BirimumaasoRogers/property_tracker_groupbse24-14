@@ -53,6 +53,10 @@ export default function DashboardPage() {
     const [geofenceStatus, setGeofenceStatus] = useState("Within Bounds");
     const [pingItem, setPingItem] = useState(false); // Ensure pingItem is a boolean state
     const [showChaseModeAlert, setShowChaseModeAlert] = useState(false);
+    const [addOpen, setAddOpen] = useState(false);
+    const [editOpen, setEditOpen] = useState(false);
+    const [editInitialValues, setEditInitialValues] = useState<any>(null);
+    console.log("Parsed edit initial data:", editInitialValues)
     const [pathHistory, setPathHistory] = useState<{ lat: number; lng: number }[]>([]);
     const [selectedProperty, setSelectedProperty] = useQueryState("propertyId", {
         defaultValue: "",
@@ -67,6 +71,22 @@ export default function DashboardPage() {
     const selectedPropertyDetails: any = propertyDetails.find(
         (property: any) => property._id === selectedProperty
     );
+    console.log("selectedPropertyDetails", selectedPropertyDetails);
+
+    const handleEditProperty = async (propertyId: any) => {
+        console.log("Editing property with ID:", propertyId);
+        setEditOpen(true);
+        // Fetch property details from API
+        const res = await fetch(`/api/properties?propertyId=${propertyId}`);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+            // Find the property matching the propertyId
+            const property = data.data.find((prop: any) => prop._id === propertyId);
+            if (property) {
+                setEditInitialValues(property);
+            }
+        }
+    };
 
     useEffect(() => {
         setIsMounted(true);
@@ -85,7 +105,7 @@ export default function DashboardPage() {
         }
     };
 
-    const handlePropertyCreationSuccess = (newPropertyId: string) => {
+    const handlePropertyCreationSuccess = (newPropertyId: any) => {
         setSelectedProperty(newPropertyId);
         fetchProperties(); // Refresh properties list
     };
@@ -113,7 +133,7 @@ export default function DashboardPage() {
         }
     };
 
-    
+
 
     useEffect(() => {
         if (trackerId && selectedProperty) {
@@ -207,7 +227,27 @@ export default function DashboardPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardFooter>
-                            <PropertyRegisterForm onSuccess={handlePropertyCreationSuccess} />
+                            <Button onClick={() => setAddOpen(true)}>
+                                Add Property
+                            </Button>
+                            <PropertyRegisterForm
+                                open={addOpen}
+                                setOpen={setAddOpen}
+                                onSuccess={handlePropertyCreationSuccess}
+                            />
+                            {editOpen && editInitialValues && (
+                                <PropertyRegisterForm
+                                    open={editOpen}
+                                    setOpen={setEditOpen}
+                                    initialValues={editInitialValues}
+                                    editMode={true}
+                                    onSuccess={() => {
+                                            setEditOpen(false);
+                                            handlePropertyCreationSuccess(editInitialValues?._id);
+                                            fetchPropertyDetails(selectedProperty);
+                                    }}
+                                />
+                            )}
                         </CardFooter>
                     </Card>
                     <Card className="w-full sm:col-span-2">
@@ -235,9 +275,6 @@ export default function DashboardPage() {
                                     Please select a property from the options above</p>
                             </div>
                         </CardContent>
-                        {/* <CardFooter>
-                            <Progress value={25} aria-label="25% increase" />
-                        </CardFooter> */}
                     </Card>
                 </div>
                 <div className="flex flex-col gap-4">
@@ -278,7 +315,8 @@ export default function DashboardPage() {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem>Edit Property</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleEditProperty(selectedPropertyDetails._id)}>Edit Property</DropdownMenuItem>
+
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>

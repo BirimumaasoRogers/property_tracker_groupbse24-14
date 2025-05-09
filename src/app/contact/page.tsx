@@ -23,7 +23,7 @@ export default function ContactPage() {
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">Contact Support</h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    We're here to help with any questions or issues you may have with your property tracking system.
+                    We&rsquo;re here to help with any questions or issues you may have with your property tracking system.
                   </p>
                 </div>
                 <div className="space-y-6">
@@ -82,7 +82,7 @@ export default function ContactPage() {
                   <div className="space-y-2 text-center">
                     <h2 className="text-2xl font-bold">Send us a message</h2>
                     <p className="text-muted-foreground">
-                      Fill out the form below and we'll get back to you as soon as possible.
+                      Fill out the form below and we&rsquo;ll get back to you as soon as possible.
                     </p>
                   </div>
                   <form className="space-y-4">

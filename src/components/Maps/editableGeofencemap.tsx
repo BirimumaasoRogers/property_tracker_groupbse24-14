@@ -7,13 +7,20 @@ import { Input } from "../ui/input";
 const mapContainerStyle = { width: "100%", height: "400px" };
 const defaultCenter = { lat: 0.3476, lng: 32.5825 };
 
-export default function GeofenceMap({ onPolygonChange }: { onPolygonChange: (coords: string) => void }) {
+export default function GeofenceMap({
+    onPolygonChange,
+    initialPaths = [],
+}: {
+    onPolygonChange: (coords: string) => void,
+    initialPaths?: { lat: number; lng: number }[]
+}) {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
         libraries: ["places"],
     });
+    console.log("INITIAL PATHS", initialPaths);
 
-    const [paths, setPaths] = useState<{ lat: number; lng: number }[]>([
+    const [paths, setPaths] = useState<{ lat: number; lng: number }[]>(initialPaths.length ? initialPaths : [
         { lat: 0.350, lng: 32.580 },
         { lat: 0.350, lng: 32.585 },
         { lat: 0.345, lng: 32.585 },
@@ -36,6 +43,12 @@ export default function GeofenceMap({ onPolygonChange }: { onPolygonChange: (coo
             );
         }
     }, []);
+
+    useEffect(() => {
+        if (initialPaths && initialPaths.length > 0) {
+            setPaths(initialPaths);
+        }
+    }, [initialPaths]);
 
     // Handle polygon edits
     const handlePolygonEdit = () => {
