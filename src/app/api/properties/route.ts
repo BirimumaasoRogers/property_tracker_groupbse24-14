@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAuthInstance } from "@/lib/auth";
 import Property from "@/models/Property";
 import { connectDB } from "@/lib/mongodb";
+import ManufacturedDevice from "@/models/ManufacturedDevice";
 
 export async function GET(req: Request) {
     try {
@@ -86,6 +87,24 @@ export async function POST(req: Request) {
 
         const data = await req.json();
         console.log("Received Data:", data);
+
+        // Check if trackerId is already registered
+        const existingProperty = await Property.findOne({ trackerId: data.trackerId });
+        if (existingProperty) {
+            return NextResponse.json(
+                { success: false, error: "This tracker ID has already been registered to another property." },
+                { status: 409 }
+            );
+        }
+
+        // Check if trackerId exists in manufactured devices
+        const manufacturedDevice = await ManufacturedDevice.findOne({ trackerId: data.trackerId });
+        if (!manufacturedDevice) {
+            return NextResponse.json(
+                { success: false, error: "This tracker ID does not exist in the list of manufactured devices." },
+                { status: 400 }
+            );
+        }
 
         const property = new Property({
             ...data,

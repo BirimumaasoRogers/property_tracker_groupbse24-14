@@ -73,6 +73,7 @@ afterAll(() => {
 
 describe('Device Registration Form', () => {
   it('registers device with valid data', async () => {
+    // @ts-ignore
     render(<PropertyRegisterForm />);
 
     // Open the dialog first
@@ -103,6 +104,7 @@ describe('Device Registration Form', () => {
   });
 
   it('shows error for missing fields', async () => {
+    // @ts-ignore
     render(<PropertyRegisterForm />);
     fireEvent.click(screen.getByText(/Add Property/i));
 
@@ -123,6 +125,7 @@ describe('Device Registration Form', () => {
   });
 
   it('shows error for invalid phone number', async () => {
+    // @ts-ignore
     render(<PropertyRegisterForm />);
     fireEvent.click(screen.getByText(/Add Property/i));
 
@@ -150,6 +153,7 @@ describe('Device Registration Form', () => {
        json: () => Promise.resolve({ success: false, error: 'Internal Server Error' }),
      });
 
+     // @ts-ignore
     render(<PropertyRegisterForm />);
     fireEvent.click(screen.getByText(/Add Property/i));
     await screen.findByTestId('mock-geofence-map');
